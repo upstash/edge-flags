@@ -111,8 +111,6 @@ const Flag: React.FC<FlagProps> = ({ name }) => {
 									<SelectBoxItem value="gte" text="greater than or equal" />
 								</SelectBox>
 
-								<Dropdown placeholder="Value" />
-
 								<Icon icon={ArrowRightIcon} />
 								<Dropdown placeholder="Value if enabled">
 									<DropdownItem value={true} text="On" />
