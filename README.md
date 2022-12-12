@@ -37,11 +37,24 @@ pnpm install
 pnpm build
 ```
 
-#### Develop UI
-  
-```bash
-pnpm turbo run dev --filter=web
+## Database Schema
+
+All configuration is stored in Redis `String` data types. Each flag is accessible through a key like
+
 ```
+STRING
+edge-flags:{TENANT}:flags:{FLAG_ID}:{ENVIRONMENT}
+```
+In addition to the flags, there will be a single set that contains all the flag IDs.
+We can not guarantee the database is only used for edge-flags so we need to keep track of the flags we have created instead of using a potentially expensive `SCAN` operation.
+```
+SET 
+edge-flags:{TENANT}:flags
+```
+
+- `TENANT` is currently unused (set as `default`) but reserved for future use. ie for managing multiple projects int a single database
+- `FLAG_ID` is the unique identifier for the flag
+- `ENVIRONMENT` is the environment the flag is targeting. ie `production`, `preview`, `development`
 
 ### Packages
 

@@ -1,12 +1,14 @@
 import { faker } from "@faker-js/faker";
 import type { Flag, Environment, Rule } from "./types";
-
+import type { Redis } from "@upstash/redis";
 import { NextMiddleware, NextRequest, NextResponse } from "next/server";
 import * as nanoid from "nanoid";
+import { RestStorage, Storage } from "./storage";
 
 type Identify = (req: NextRequest) => string | Promise<string>;
 
 export type Config = {
+	redis: Redis;
 	identify?: Identify;
 };
 
@@ -14,9 +16,9 @@ export class EdgeFlags {
 	private readonly identify?: Identify;
 	public config: ConfigAPI;
 
-	constructor(opts?: Config) {
+	constructor(opts: Config) {
 		this.identify = opts?.identify;
-		this.config = new ConfigAPI();
+		this.config = new ConfigAPI({ storage: new RestStorage(opts.redis) });
 	}
 
 	/**
@@ -30,7 +32,7 @@ export class EdgeFlags {
 }
 
 class ConfigAPI {
-	private _dummy: Flag[] = [];
+	private storage: Storage;
 	private readonly newId = (prefix: string) =>
 		[
 			prefix,
@@ -39,8 +41,11 @@ class ConfigAPI {
 			)(16),
 		].join("_");
 
+	constructor(opts: { storage: Storage }) {
+		this.storage = opts.storage;
+	}
 	public async listFlags(): Promise<Flag[]> {
-		return this._dummy;
+		return this.storage.listFlags();
 	}
 
 	/**
@@ -58,6 +63,7 @@ class ConfigAPI {
 			rules: [],
 			environment,
 			percentage: null,
+			value: false,
 		});
 
 		const flags = {
@@ -65,9 +71,11 @@ class ConfigAPI {
 			preview: _create("preview"),
 			development: _create("development"),
 		};
-		this._dummy.push(...Object.values(flags));
+		for (const flag of Object.values(flags)) {
+			await this.storage.createFlag(flag);
+		}
 
-		return new Promise((r) => r(flags));
+		return flags;
 	}
 
 	public async updateFlag(
@@ -80,40 +88,30 @@ class ConfigAPI {
 			percentage?: number | null;
 		},
 	): Promise<Flag> {
-		const idx = this._dummy.findIndex(
-			(f) => f.id === flagId && f.environment === environment,
-		);
-		if (idx < 0) {
-			throw new Error("Flag not found");
-		}
-		const flag = this._dummy[idx];
-
-		const update = {
-			...flag,
-			name: data?.name ?? flag.name,
-			enabled: data?.enabled ?? flag.enabled,
-			rules: data?.rules ?? flag.rules,
-			performance: data?.percentage ?? flag.percentage,
-		};
-		this._dummy[idx] = update;
-		return update;
+		return await this.storage.updateFlag(flagId, environment, data);
+	}
+	public async deleteFlag(flagId: string): Promise<void> {
+		await this.storage.deleteFlag(flagId);
 	}
 
-	public async copyFlag(flagId: string, from: Environment, to: Environment) {
-		const source = this._dummy.find(
-			(f) => f.id === flagId && f.environment === from,
-		);
+	/**
+	 * Copy a flag configuration from one environment to another.
+	 * This overwrites the target environment
+	 *
+	 * @param flagId - the flag id
+	 * @param from - The environment from where the flag will be copied
+	 * @param to - The environment to where the flag will be copied
+	 */
+	public async copyFlag(
+		flagId: string,
+		from: Environment,
+		to: Environment,
+	): Promise<void> {
+		const source = await this.storage.getFlag(flagId, from);
 		if (!source) {
 			throw new Error("Source flag not found");
 		}
-
-		const idx = this._dummy.findIndex(
-			(f) => f.id === flagId && f.environment === to,
-		);
-		if (idx < 0) {
-			throw new Error("Destination flag not found");
-		}
-		this._dummy[idx] = { ...source, environment: to };
+		await this.storage.createFlag({ ...source, environment: to });
 	}
 
 	/**
@@ -123,20 +121,19 @@ class ConfigAPI {
 	 *
 	 *
 	 */
-	public initDummy(): void {
+	public async initDummy(): Promise<void> {
 		const envs: Environment[] = ["production", "preview", "development"];
-		this._dummy = new Array(3).fill(null).flatMap((_) => {
+		for (let i = 0; i < 3; i++) {
 			const flagId = this.newId("flag");
 
 			const name = faker.color.human();
-			return envs.map((environment: Environment) => {
-				return {
+			for (const environment of envs) {
+				this.storage.createFlag({
 					id: flagId,
 					name,
 					enabled: Math.random() > 0.3,
 					rules: [
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "ip",
 							compare: "in",
@@ -146,7 +143,6 @@ class ConfigAPI {
 							value: false,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "identifier",
 							compare: "not_in",
@@ -156,7 +152,6 @@ class ConfigAPI {
 							value: false,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "city",
 							compare: "contains",
@@ -164,7 +159,6 @@ class ConfigAPI {
 							value: false,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "city",
 							compare: "not_contains",
@@ -172,7 +166,6 @@ class ConfigAPI {
 							value: true,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "city",
 							compare: "eq",
@@ -180,7 +173,6 @@ class ConfigAPI {
 							value: true,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "city",
 							compare: "not_eq",
@@ -188,21 +180,18 @@ class ConfigAPI {
 							value: false,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "identifier",
 							compare: "empty",
 							value: true,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "identifier",
 							compare: "not_empty",
 							value: false,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "identifier",
 							compare: "gt",
@@ -210,7 +199,6 @@ class ConfigAPI {
 							value: true,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "identifier",
 							compare: "gte",
@@ -218,7 +206,6 @@ class ConfigAPI {
 							value: true,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "identifier",
 							compare: "lt",
@@ -226,7 +213,6 @@ class ConfigAPI {
 							value: true,
 						},
 						{
-							id: this.newId("rule"),
 							version: "v1",
 							accessor: "identifier",
 							compare: "lte",
@@ -238,8 +224,8 @@ class ConfigAPI {
 					environment,
 					percentage:
 						Math.random() > 0.5 ? Math.ceil(100 * Math.random()) : null,
-				};
-			});
-		});
+				});
+			}
+		}
 	}
 }
