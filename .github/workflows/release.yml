@@ -52,10 +52,10 @@ jobs:
       - name: Publish
         if: "!github.event.release.prerelease"
         working-directory: packages/sdk
-        run: pnpm publish --access public
+        run: pnpm publish --access public --no-git-checks
 
       - name: Publish release candidate
         if: "github.event.release.prerelease"
         working-directory: packages/sdk
-        run: pnpm publish --access public --tag=next
-        
+        run: pnpm publish --access public --tag=next --no-git-checks
+         
