@@ -11,7 +11,7 @@
   "author": "Andreas Thomas",
   "license": "ISC",
   "dependencies": {
-    "@upstash/edge-flags": "0.0.6",
+    "@upstash/edge-flags": "workspace:*",
     "@upstash/redis": "^1.18.1"
   },
   "devDependencies": {

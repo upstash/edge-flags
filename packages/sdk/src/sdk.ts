@@ -44,8 +44,13 @@ class ConfigAPI {
 	constructor(opts: { storage: Storage }) {
 		this.storage = opts.storage;
 	}
+
+	/**
+	 * Return all flags ordered by updatedAt. The most recently updated flag will be first
+	 */
 	public async listFlags(): Promise<Flag[]> {
-		return this.storage.listFlags();
+		const flags = await this.storage.listFlags();
+		return flags.sort((a, b) => b.updatedAt - a.updatedAt);
 	}
 
 	/**
@@ -56,6 +61,7 @@ class ConfigAPI {
 		Record<Flag["environment"], Flag>
 	> {
 		const id = this.newId("flag");
+		const now = Date.now();
 		const _create = (environment: Environment): Flag => ({
 			enabled: false,
 			id,
@@ -64,6 +70,8 @@ class ConfigAPI {
 			environment,
 			percentage: null,
 			value: false,
+			createdAt: now,
+			updatedAt: now,
 		});
 
 		const flags = {
@@ -88,7 +96,10 @@ class ConfigAPI {
 			percentage?: number | null;
 		},
 	): Promise<Flag> {
-		return await this.storage.updateFlag(flagId, environment, data);
+		return await this.storage.updateFlag(flagId, environment, {
+			...data,
+			updatedAt: Date.now(),
+		});
 	}
 	public async deleteFlag(flagId: string): Promise<void> {
 		await this.storage.deleteFlag(flagId);
@@ -111,7 +122,11 @@ class ConfigAPI {
 		if (!source) {
 			throw new Error("Source flag not found");
 		}
-		await this.storage.createFlag({ ...source, environment: to });
+		await this.storage.createFlag({
+			...source,
+			environment: to,
+			updatedAt: Date.now(),
+		});
 	}
 
 	/**
@@ -130,6 +145,8 @@ class ConfigAPI {
 			for (const environment of envs) {
 				this.storage.createFlag({
 					id: flagId,
+					createdAt: Date.now(),
+					updatedAt: Date.now(),
 					name,
 					enabled: Math.random() > 0.3,
 					rules: [

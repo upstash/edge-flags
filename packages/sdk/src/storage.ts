@@ -13,6 +13,7 @@ export interface Storage {
 			enabled?: boolean;
 			rules?: Rule[];
 			percentage?: number | null;
+			updatedAt: number;
 		},
 	) => Promise<Flag>;
 	deleteFlag: (flagId: string) => Promise<void>;
@@ -83,6 +84,7 @@ export class RestStorage implements Storage {
 			enabled?: boolean;
 			rules?: Rule[];
 			percentage?: number | null;
+			updatedAt: number;
 		},
 	): Promise<Flag> {
 		const key = flagKey({ tenant: "default", flagId, environment });
@@ -92,10 +94,11 @@ export class RestStorage implements Storage {
 		}
 		const updated: Flag = {
 			...flag,
-			name: data?.name ?? flag.name,
-			enabled: data?.enabled ?? flag.enabled,
-			rules: data?.rules ?? flag.rules,
-			percentage: data?.percentage ?? flag.percentage,
+			updatedAt: data.updatedAt,
+			name: data.name ?? flag.name,
+			enabled: data.enabled ?? flag.enabled,
+			rules: data.rules ?? flag.rules,
+			percentage: data.percentage ?? flag.percentage,
 		};
 		await this.redis.set(key, updated);
 		return updated;

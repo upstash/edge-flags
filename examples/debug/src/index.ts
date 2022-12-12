@@ -7,7 +7,7 @@ async function main() {
 		redis,
 	});
 
-	// await edgeFlags.config.initDummy()
+	await edgeFlags.config.initDummy()
 
 	await edgeFlags.config.deleteFlag("flag_vQ4hwiMiiKpvdM2g");
 	console.log(await edgeFlags.config.listFlags());
