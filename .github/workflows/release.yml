@@ -13,24 +13,35 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
 
-      - name: Set env
-        run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
+     
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: 18
 
-      - name: Install
-        run: |
-          npm install -g pnpm
-          pnpm install
+      - name: Set version
+        run: node cmd/set-version.js packages/sdk/package.json ${GITHUB_REF#refs/*/}
 
-      - name: Inject version
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
         run: |
-          git config user.email "andreas@upstash.com"
-          git config user.name "Andreas Thomas"
-          npm version $VERSION
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
       
       - name: Build
         run: pnpm build    
