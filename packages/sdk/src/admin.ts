@@ -1,48 +1,18 @@
 import { faker } from "@faker-js/faker";
 import type { Flag, Environment, Rule } from "./types";
-import type { Redis } from "@upstash/redis";
-import { NextMiddleware, NextRequest, NextResponse } from "next/server";
-import * as nanoid from "nanoid";
 import { RestStorage, Storage } from "./storage";
+import { Redis } from "@upstash/redis";
 
-type Identify = (req: NextRequest) => string | Promise<string>;
-
-export type Config = {
+export type Options = {
+	prefix?: string;
 	redis: Redis;
-	identify?: Identify;
 };
 
-export class EdgeFlags {
-	private readonly identify?: Identify;
-	public config: ConfigAPI;
-
-	constructor(opts: Config) {
-		this.identify = opts?.identify;
-		this.config = new ConfigAPI({ storage: new RestStorage(opts.redis) });
-	}
-
-	/**
-	 * handler should be default exported by the user in an edge compatible api route
-	 */
-	public handler(): NextMiddleware {
-		return (_req: NextRequest) => {
-			return NextResponse.next();
-		};
-	}
-}
-
-class ConfigAPI {
+export class Admin {
 	private storage: Storage;
-	private readonly newId = (prefix: string) =>
-		[
-			prefix,
-			nanoid.customAlphabet(
-				"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz",
-			)(16),
-		].join("_");
 
-	constructor(opts: { storage: Storage }) {
-		this.storage = opts.storage;
+	constructor({ redis, prefix = "edge-flags" }: Options) {
+		this.storage = new RestStorage({ redis, prefix });
 	}
 
 	/**
@@ -53,6 +23,14 @@ class ConfigAPI {
 		return flags.sort((a, b) => b.updatedAt - a.updatedAt);
 	}
 
+	public async getFlag(
+		name: string,
+		environment: Environment,
+	): Promise<Flag | null> {
+		this.validateName(name);
+		return await this.storage.getFlag(name, environment);
+	}
+
 	/**
 	 * Create a new flag for each environment
 	 * The created flags will be disabled and have no rules.
@@ -60,11 +38,10 @@ class ConfigAPI {
 	public async createFlag(create: { name: string }): Promise<
 		Record<Flag["environment"], Flag>
 	> {
-		const id = this.newId("flag");
+		this.validateName(create.name);
 		const now = Date.now();
 		const _create = (environment: Environment): Flag => ({
 			enabled: false,
-			id,
 			name: create.name,
 			rules: [],
 			environment,
@@ -79,15 +56,33 @@ class ConfigAPI {
 			preview: _create("preview"),
 			development: _create("development"),
 		};
-		for (const flag of Object.values(flags)) {
-			await this.storage.createFlag(flag);
-		}
+		await Promise.all(
+			Object.values(flags).map((flag) => this.storage.createFlag(flag)),
+		);
 
 		return flags;
 	}
 
+	/**
+	 * validateName throws a descriptive error if the given name is not valid
+	 */
+	private validateName(name: string): void {
+		if (name.length < 3) {
+			throw new Error("Name must be at least 3 characters");
+		}
+		if (name.length > 64) {
+			throw new Error("Name must be at most 64 characters");
+		}
+		const regex = /^[a-zA-Z0-9-_\.]+$/;
+		if (!regex.test(name)) {
+			throw new Error(
+				`Name must only include letters, numbers as well as ".", "_" and "-"`,
+			);
+		}
+	}
+
 	public async updateFlag(
-		flagId: string,
+		flagName: string,
 		environment: Environment,
 		data: {
 			name?: string;
@@ -96,7 +91,11 @@ class ConfigAPI {
 			percentage?: number | null;
 		},
 	): Promise<Flag> {
-		return await this.storage.updateFlag(flagId, environment, {
+		if (typeof data.name !== "undefined") {
+			this.validateName(data.name);
+		}
+
+		return await this.storage.updateFlag(flagName, environment, {
 			...data,
 			updatedAt: Date.now(),
 		});
@@ -132,19 +131,16 @@ class ConfigAPI {
 	/**
 	 * DEV ONLY
 	 *
-	 * Seed some flags - THIS OVERRIDES THE EXISTING FLAGS
+	 * Seed some flags
 	 *
 	 *
 	 */
 	public async initDummy(): Promise<void> {
 		const envs: Environment[] = ["production", "preview", "development"];
 		for (let i = 0; i < 3; i++) {
-			const flagId = this.newId("flag");
-
 			const name = faker.color.human();
 			for (const environment of envs) {
 				this.storage.createFlag({
-					id: flagId,
 					createdAt: Date.now(),
 					updatedAt: Date.now(),
 					name,
@@ -237,7 +233,7 @@ class ConfigAPI {
 							value: true,
 						},
 					],
-					value: true,
+					value: Math.random() > 0.5,
 					environment,
 					percentage:
 						Math.random() > 0.5 ? Math.ceil(100 * Math.random()) : null,

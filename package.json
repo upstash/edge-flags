@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.25.2",
-    "rome": "^10.0.1",
+    "rome": "^11.0.0",
     "turbo": "^1.6.3"
   },
   "engines": {

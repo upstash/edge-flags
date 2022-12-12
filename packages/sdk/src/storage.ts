@@ -1,12 +1,13 @@
-import { Redis } from "@upstash/redis";
+import { Redis, RedisConfigNodejs } from "@upstash/redis";
+import { environments } from "./environment";
 import { Environment, Flag, Rule } from "./types";
 
 export interface Storage {
 	createFlag: (flag: Flag) => Promise<void>;
-	getFlag: (flagId: string, environment: Environment) => Promise<Flag | null>;
+	getFlag: (flagName: string, environment: Environment) => Promise<Flag | null>;
 	listFlags: () => Promise<Flag[]>;
 	updateFlag: (
-		flagId: string,
+		flagName: string,
 		environment: Environment,
 		data: {
 			name?: string;
@@ -16,56 +17,82 @@ export interface Storage {
 			updatedAt: number;
 		},
 	) => Promise<Flag>;
-	deleteFlag: (flagId: string) => Promise<void>;
+	deleteFlag: (flagName: string) => Promise<void>;
 }
 
 function flagKey({
+	prefix,
 	tenant = "default",
-	flagId,
+	flagName,
 	environment,
-}: { tenant?: string; flagId: string; environment: Environment }) {
-	return `edge-flags:${tenant}:flags:${flagId}:${environment}`;
+}: {
+	prefix: string;
+	tenant?: string;
+	flagName: string;
+	environment: Environment;
+}) {
+	return [prefix, tenant, "flags", flagName, environment].join(":");
 }
 
-function listKey({ tenant = "default" }: { tenant?: string }) {
-	return `edge-flags:${tenant}:flags`;
+function listKey({
+	prefix,
+	tenant = "default",
+}: { prefix: string; tenant?: string }) {
+	return [prefix, tenant, "flags"].join(":");
 }
 
 export class RestStorage implements Storage {
 	private readonly redis: Redis;
-	constructor(redis: Redis) {
+	private readonly prefix: string;
+	constructor({ redis, prefix }: { redis: Redis; prefix: string }) {
 		this.redis = redis;
+		this.prefix = prefix;
 	}
 
 	public async createFlag(flag: Flag): Promise<void> {
 		const tx = this.redis.multi();
 		tx.set(
 			flagKey({
+				prefix: this.prefix,
 				tenant: "default",
-				flagId: flag.id,
+				flagName: flag.name,
 				environment: flag.environment,
 			}),
 			flag,
+			{
+				nx: true,
+			},
 		);
-		tx.sadd(listKey({ tenant: "default" }), flag.id);
-		await tx.exec();
+		tx.sadd(listKey({ prefix: this.prefix, tenant: "default" }), flag.name);
+		const [created, _] = await tx.exec<["OK" | null, unknown]>();
+		if (!created) {
+			throw new Error(`A flag with this name already exists: ${flag.name}`);
+		}
 	}
 	public async getFlag(
-		flagId: string,
+		flagName: string,
 		environment: Environment,
 	): Promise<Flag | null> {
 		return await this.redis.get(
-			flagKey({ tenant: "default", flagId, environment }),
+			flagKey({
+				prefix: this.prefix,
+				tenant: "default",
+				flagName,
+				environment,
+			}),
 		);
 	}
 
 	public async listFlags(): Promise<Flag[]> {
-		const flagIds = await this.redis.smembers(listKey({ tenant: "default" }));
-		const keys = flagIds.flatMap((id) =>
-			["production", "preview", "development"].map((env) =>
+		const flagNames = await this.redis.smembers(
+			listKey({ prefix: this.prefix, tenant: "default" }),
+		);
+		const keys = flagNames.flatMap((id) =>
+			environments.map((env) =>
 				flagKey({
+					prefix: this.prefix,
 					tenant: "default",
-					flagId: id,
+					flagName: id,
 					environment: env as Environment,
 				}),
 			),
@@ -77,7 +104,7 @@ export class RestStorage implements Storage {
 	}
 
 	public async updateFlag(
-		flagId: string,
+		flagName: string,
 		environment: Environment,
 		data: {
 			name?: string;
@@ -87,10 +114,15 @@ export class RestStorage implements Storage {
 			updatedAt: number;
 		},
 	): Promise<Flag> {
-		const key = flagKey({ tenant: "default", flagId, environment });
+		const key = flagKey({
+			prefix: this.prefix,
+			tenant: "default",
+			flagName,
+			environment,
+		});
 		const flag = await this.redis.get<Flag>(key);
 		if (!flag) {
-			throw new Error(`Flag ${flagId} not found`);
+			throw new Error(`Flag ${flagName} not found`);
 		}
 		const updated: Flag = {
 			...flag,
@@ -104,16 +136,19 @@ export class RestStorage implements Storage {
 		return updated;
 	}
 
-	public async deleteFlag(flagId: string): Promise<void> {
+	public async deleteFlag(flagName: string): Promise<void> {
 		const tx = this.redis.multi();
-		for (const environment of [
-			"production",
-			"preview",
-			"development",
-		] as Environment[]) {
-			tx.del(flagKey({ tenant: "default", flagId, environment }));
+		for (const environment of environments) {
+			tx.del(
+				flagKey({
+					prefix: this.prefix,
+					tenant: "default",
+					flagName,
+					environment,
+				}),
+			);
 		}
-		tx.srem(listKey({ tenant: "default" }), flagId);
+		tx.srem(listKey({ prefix: this.prefix, tenant: "default" }), flagName);
 		await tx.exec();
 	}
 }
