@@ -49,6 +49,9 @@ jobs:
       - name: Add npm token
         run: echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
 
+      - name: Copy README
+        run: cp README.md packages/sdk/README.md
+
       - name: Publish
         if: "!github.event.release.prerelease"
         working-directory: packages/sdk

@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 const file = process.argv[2]; // path to package.json
-const version = process.argv[3]; // new version
+const version = process.argv[3].replace(/^v/, ""); // new version
 
 console.log(`Updating version=${version} in ${file}`);
 

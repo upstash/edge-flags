@@ -15,12 +15,12 @@ importers:
   examples/debug:
     specifiers:
       '@types/node': ^18.11.13
-      '@upstash/edge-flags': workspace:*
+      '@upstash/edge-flags': 0.0.6
       '@upstash/redis': ^1.18.1
       ts-node: ^10.9.1
       typescript: ^4.9.3
     dependencies:
-      '@upstash/edge-flags': link:../../packages/sdk
+      '@upstash/edge-flags': 0.0.6_biqbaboplfbrettd7655fr4n2y
       '@upstash/redis': 1.18.1
     devDependencies:
       '@types/node': 18.11.13
@@ -590,6 +590,24 @@ packages:
   /@types/semver/6.2.3:
     resolution: {integrity: sha512-KQf+QAMWKMrtBMsB8/24w53tEsxllMj6TuA80TT/5igJalLI/zm0L3oXRbIAl4Ohfc85gyHX/jhMwsVkmhLU4A==}
     dev: true
+
+  /@upstash/edge-flags/0.0.6_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-Sb8gS+GH9x22xPVU75d0p39bn8BmuJX6XD9a7WWmIA+s1fSyugEeAYDqbT2eS/m9PiCJNWRqRt58Oeewk4ft7Q==}
+    dependencies:
+      '@upstash/redis': 1.18.1
+      nanoid: 3.3.4
+      next: 13.0.5_biqbaboplfbrettd7655fr4n2y
+      zod: 3.19.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+      - encoding
+      - fibers
+      - node-sass
+      - react
+      - react-dom
+      - sass
+    dev: false
 
   /@upstash/redis/1.18.1:
     resolution: {integrity: sha512-wk0KTRBW1VENdkJY62Oh0RZWSzrXOHQh6nvVs5fes/zYZzB9byUDN7oB2uylh+YjPHtAxbdrjZ68MA6g2mRQow==}
