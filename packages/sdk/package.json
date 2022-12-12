@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@upstash/redis": "^1.18.1",
-    "nanoid": "3",
+    "nanoid": "4",
     "next": "13.0.5",
     "zod": "^3.19.1"
   }
