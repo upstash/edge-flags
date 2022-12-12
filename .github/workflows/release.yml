@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Set env
+        run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: Install
+        run: |
+          npm install -g pnpm
+          pnpm install
+
+      - name: Inject version
+        run: npm version $VERSION
+      
+      - name: Build
+        run: pnpm build    
+
+      - name: Add npm token
+        run: echo "//registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}" > .npmrc
+
+      - name: Publish
+        if: "!github.event.release.prerelease"
+        working-directory: packages/sdk
+        run: pnpm publish --access public
+
+      - name: Publish release candidate
+        if: "github.event.release.prerelease"
+        working-directory: packages/sdk
+        run: pnpm publish --access public --tag=next
+        
