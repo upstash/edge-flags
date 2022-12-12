@@ -27,7 +27,10 @@ jobs:
           pnpm install
 
       - name: Inject version
-        run: npm version $VERSION --no-commit-hooks
+        run: |
+          git config user.email "andreas@upstash.com"
+          git config user.name "Andreas Thomas"
+          npm version $VERSION
       
       - name: Build
         run: pnpm build    
