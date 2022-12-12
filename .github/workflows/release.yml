@@ -27,7 +27,7 @@ jobs:
           pnpm install
 
       - name: Inject version
-        run: npm version $VERSION
+        run: npm version $VERSION --no-commit-hooks
       
       - name: Build
         run: pnpm build    
