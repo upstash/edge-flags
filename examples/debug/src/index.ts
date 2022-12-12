@@ -8,6 +8,11 @@ async function main() {
 	});
 
 	await edgeFlags.initDummy();
+
+	edgeFlags.updateFlag("flagName", "production", {
+		// ...
+		name: "the new flag name"
+	})
 }
 
 main();
