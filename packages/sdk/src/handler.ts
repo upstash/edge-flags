@@ -122,12 +122,16 @@ async function evaluate(
 	};
 	console.log(JSON.stringify({ evalRequest }, null, 2));
 
-	for (const schema of flag.rules) {
-		const hit = new Rule(schema).evaluate(evalRequest);
-		console.log("evaluating rule", schema, { hit })
+	for (const rule of flag.rules) {
+		const hit = new Rule(rule).evaluate(evalRequest);
+		console.log("evaluating rule", rule, { hit })
 		if (hit) {
+
+			const res = { value: rule.value }
+			console.log("Returning", res)
+
 			return NextResponse.json(
-				{ value: schema.value },
+				res,
 				{
 					status: 200,
 					headers: new Headers({
