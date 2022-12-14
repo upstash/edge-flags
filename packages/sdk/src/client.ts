@@ -63,9 +63,9 @@ export function useFlag(flagName: string): UseFlag {
 				setError(await res.text());
 				return;
 			}
-			const json = await res.json();
+			const json = await res.json() as { value: boolean }
 			console.log({ json });
-			setValue(json);
+			setValue(json.value);
 		} catch (err) {
 			if (err instanceof Error) {
 				setError(err.message);
