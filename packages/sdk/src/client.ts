@@ -52,13 +52,13 @@ export function useFlag(flagName: string): UseFlag {
 	const [error, setError] = useState<string | null>(null);
 	const [value, setValue] = useState<boolean | null>(null);
 
-	const url = new URL("/api/edge-flags");
-	url.searchParams.set("flag", flagName);
+
+
 
 	const getFlag = async () => {
 		try {
 			setIsLoading(true);
-			const res = await fetch(url);
+			const res = await fetch(`/api/edge-flags?flag=${flagName}`);
 			if (!res.ok) {
 				setError(await res.text());
 				return;
