@@ -13,9 +13,9 @@ export default function Home() {
 					Welcome to <a href="https://nextjs.org">Edge Flags</a>
 				</h1>
 
-
-				<pre className={styles.code}>{JSON.stringify({ isLoading, error, value }, null, 2)}</pre>
-
+				<pre className={styles.code}>
+					{JSON.stringify({ isLoading, error, value }, null, 2)}
+				</pre>
 			</main>
 		</div>
 	);

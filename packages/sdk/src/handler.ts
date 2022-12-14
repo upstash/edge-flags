@@ -8,6 +8,7 @@ import {
 
 import { Admin } from "./admin";
 import { Rule } from "./rules";
+import { Environment } from "./types";
 
 type Identify = (
 	req: NextRequest,
@@ -105,7 +106,11 @@ async function evaluate(
 
 	const admin = new Admin({ redis, prefix: opts.prefix });
 	console.log("Making request to redis");
-	const flag = await admin.getFlag(flagName, "production");
+
+	const environment =
+		(process.env.VERCEL_ENV as Environment | undefined) ?? "production";
+	console.log({ environment });
+	const flag = await admin.getFlag(flagName, environment);
 	if (!flag) {
 		return new NextResponse("Flag not found", { status: 404 });
 	}
@@ -124,22 +129,18 @@ async function evaluate(
 
 	for (const rule of flag.rules) {
 		const hit = new Rule(rule).evaluate(evalRequest);
-		console.log("evaluating rule", rule, { hit })
+		console.log("evaluating rule", rule, { hit });
 		if (hit) {
+			const res = { value: rule.value };
+			console.log("Returning", res);
 
-			const res = { value: rule.value }
-			console.log("Returning", res)
-
-			return NextResponse.json(
-				res,
-				{
-					status: 200,
-					// TODO: reenable cache
-					// headers: new Headers({
-					// 	"Cache-Control": `s-maxage=${opts.cacheMaxAge}, public`,
-					// }),
-				},
-			);
+			return NextResponse.json(res, {
+				status: 200,
+				// TODO: reenable cache
+				// headers: new Headers({
+				// 	"Cache-Control": `s-maxage=${opts.cacheMaxAge}, public`,
+				// }),
+			});
 		}
 	}
 
@@ -150,9 +151,10 @@ async function evaluate(
 		{ value: null },
 		{
 			status: 200,
-			headers: new Headers({
-				"Cache-Control": `s-maxage=${opts.cacheMaxAge}, public`,
-			}),
+			// TODO: reenable cache
+			// headers: new Headers({
+			// 	"Cache-Control": `s-maxage=${opts.cacheMaxAge}, public`,
+			// }),
 		},
 	);
 }

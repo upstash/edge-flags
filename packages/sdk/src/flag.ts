@@ -8,7 +8,6 @@ export const flag = z.object({
 	rules: z.array(rule),
 	environment: z.enum(["development", "preview", "production"]),
 	percentage: z.number().min(0).max(100).nullable(),
-	value: z.boolean(),
 	createdAt: z.number().int().positive(),
 	updatedAt: z.number().int().positive(),
 });

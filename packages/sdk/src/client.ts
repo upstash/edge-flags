@@ -52,9 +52,6 @@ export function useFlag(flagName: string): UseFlag {
 	const [error, setError] = useState<string | null>(null);
 	const [value, setValue] = useState<boolean | null>(null);
 
-
-
-
 	const getFlag = async () => {
 		try {
 			setIsLoading(true);
@@ -63,7 +60,7 @@ export function useFlag(flagName: string): UseFlag {
 				setError(await res.text());
 				return;
 			}
-			const json = await res.json() as { value: boolean }
+			const json = (await res.json()) as { value: boolean };
 			console.log({ json });
 			setValue(json.value);
 		} catch (err) {
