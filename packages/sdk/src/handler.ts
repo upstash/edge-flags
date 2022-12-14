@@ -124,6 +124,7 @@ async function evaluate(
 
 	for (const schema of flag.rules) {
 		const hit = new Rule(schema).evaluate(evalRequest);
+		console.log("evaluating rule", schema, { hit })
 		if (hit) {
 			return NextResponse.json(
 				{ value: schema.value },
