@@ -36,7 +36,7 @@ export class Admin {
 	 * The created flags will be disabled and have no rules.
 	 */
 	public async createFlag(create: { name: string }): Promise<
-		Record<Flag["environment"], Flag>
+		Record<Environment, Flag>
 	> {
 		this.validateName(create.name);
 		const now = Date.now();
@@ -108,16 +108,43 @@ export class Admin {
 	 * Copy a flag configuration from one environment to another.
 	 * This overwrites the target environment
 	 *
-	 * @param flagId - the flag id
+	 * @param flagName - the flag name to copy
+	 * @param newName - give the copied flag a new name
+	 */
+	public async copyFlag(
+		flagName: string,
+		newName: string,
+	): Promise<Record<Environment, Flag>> {
+		const copy = async (env: Environment) => {
+			const source = await this.storage.getFlag(flagName, env);
+			if (!source) {
+				throw new Error("Source flag not found");
+			}
+			const newFlag = { ...source, name: newName };
+			await this.storage.createFlag(newFlag);
+			return newFlag;
+		};
+
+		return {
+			development: await copy("development"),
+			preview: await copy("preview"),
+			production: await copy("production"),
+		};
+	}
+	/**
+	 * Copy a flag configuration from one environment to another.
+	 * This overwrites the target environment
+	 *
+	 * @param flagName - the flag id
 	 * @param from - The environment from where the flag will be copied
 	 * @param to - The environment to where the flag will be copied
 	 */
-	public async copyFlag(
-		flagId: string,
+	public async copyEnvironment(
+		flagName: string,
 		from: Environment,
 		to: Environment,
 	): Promise<void> {
-		const source = await this.storage.getFlag(flagId, from);
+		const source = await this.storage.getFlag(flagName, from);
 		if (!source) {
 			throw new Error("Source flag not found");
 		}

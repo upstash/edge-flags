@@ -7,12 +7,19 @@ async function main() {
 		redis,
 	});
 
-	await edgeFlags.initDummy();
-
-	edgeFlags.updateFlag("flagName", "production", {
-		// ...
-		name: "the new flag name"
-	})
+	// await edgeFlags.createFlag({name: "is-german"})
+	await edgeFlags.updateFlag("is-german", "production", {
+		enabled: true,
+		rules: [
+			{
+				version: "v1",
+				accessor: "country",
+				compare: "in",
+				target: ["Germany", "Turkey"],
+				value: true,
+			},
+		],
+	});
 }
 
 main();

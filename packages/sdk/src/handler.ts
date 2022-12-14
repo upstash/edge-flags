@@ -45,6 +45,12 @@ export function createHandler(opts: HandlerConfig): NextMiddleware {
 	return async (req: NextRequest, _event: NextFetchEvent) => {
 		const url = new URL(req.url);
 
+		if (url.searchParams.has(EVAL_FLAG)) {
+			return evaluate(req, opts);
+		}
+
+		console.log("Preparing geo data");
+		console.log(JSON.stringify({ geo: req.geo }));
 		url.searchParams.set(EVAL_FLAG, "true");
 		const identifier = await opts.identify(req);
 		if (identifier) {
@@ -91,6 +97,7 @@ async function evaluate(
 	if (!flagName) {
 		return new NextResponse("Missing parameter: flag", { status: 400 });
 	}
+	console.log("Evaluating flag", flagName);
 	const redis = new Redis({
 		url: opts.redisUrl,
 		token: opts.redisToken,
@@ -102,6 +109,7 @@ async function evaluate(
 	if (!flag) {
 		return new NextResponse("Flag not found", { status: 404 });
 	}
+	console.log("Found flag", JSON.stringify(flag));
 
 	const evalRequest = {
 		city: url.searchParams.get("city") ?? undefined,
@@ -112,6 +120,7 @@ async function evaluate(
 		ip: url.searchParams.get("ip") ?? undefined,
 		identifier: url.searchParams.get("identifier") ?? undefined,
 	};
+	console.log(JSON.stringify({ evalRequest }, null, 2));
 
 	for (const schema of flag.rules) {
 		const hit = new Rule(schema).evaluate(evalRequest);
