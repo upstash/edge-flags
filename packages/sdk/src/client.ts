@@ -52,9 +52,7 @@ export function useFlag(flagName: string): UseFlag {
 	const [error, setError] = useState<string | null>(null);
 	const [value, setValue] = useState<boolean | null>(null);
 
-	const host = process.env.NEXT_PUBLIC_VERCEL_URL;
-	const baseUrl = host ? `https://${host}` : "http://localhost:3000";
-	const url = new URL("/api/edge-flags", baseUrl);
+	const url = new URL("/api/edge-flags");
 	url.searchParams.set("flag", flagName);
 
 	const getFlag = async () => {
