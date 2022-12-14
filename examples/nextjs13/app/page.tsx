@@ -14,7 +14,7 @@ export default function Home() {
 				</h1>
 
 				<p className={styles.description}>
-					<code className={styles.code}>{JSON.stringify(x, null, 2)}</code>
+					<pre className={styles.code}>{JSON.stringify(x, null, 2)}</pre>
 				</p>
 			</main>
 		</div>
