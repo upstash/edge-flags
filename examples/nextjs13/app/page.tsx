@@ -4,7 +4,7 @@ import styles from "./page.module.css";
 import { useFlag } from "@upstash/edge-flags";
 
 export default function Home() {
-	const x = useFlag("is-german");
+	const { isLoading, value, error } = useFlag("is-german");
 
 	return (
 		<div className={styles.container}>
@@ -14,7 +14,7 @@ export default function Home() {
 				</h1>
 
 
-				<pre className={styles.code}>{JSON.stringify(x, null, 2)}</pre>
+				<pre className={styles.code}>{JSON.stringify({ isLoading, error, value }, null, 2)}</pre>
 
 			</main>
 		</div>
