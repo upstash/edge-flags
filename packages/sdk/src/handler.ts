@@ -134,9 +134,10 @@ async function evaluate(
 				res,
 				{
 					status: 200,
-					headers: new Headers({
-						"Cache-Control": `s-maxage=${opts.cacheMaxAge}, public`,
-					}),
+					// TODO: reenable cache
+					// headers: new Headers({
+					// 	"Cache-Control": `s-maxage=${opts.cacheMaxAge}, public`,
+					// }),
 				},
 			);
 		}
