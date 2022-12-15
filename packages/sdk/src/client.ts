@@ -44,13 +44,13 @@ export type EdgeFlagsConfig = {
 export type UseFlag = {
 	isLoading: boolean;
 	error: string | null;
-	value: boolean | null;
+	isEnabled: boolean | null;
 };
 
 export function useFlag(flagName: string): UseFlag {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [value, setValue] = useState<boolean | null>(null);
+	const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
 
 	const getFlag = async () => {
 		try {
@@ -62,7 +62,7 @@ export function useFlag(flagName: string): UseFlag {
 			}
 			const json = (await res.json()) as { value: boolean };
 			console.log({ json });
-			setValue(json.value);
+			setIsEnabled(json.value);
 		} catch (err) {
 			if (err instanceof Error) {
 				setError(err.message);
@@ -78,7 +78,7 @@ export function useFlag(flagName: string): UseFlag {
 		getFlag();
 	}, [flagName]);
 
-	return { isLoading, error, value };
+	return { isLoading, error, isEnabled };
 }
 
 export class EdgeFlagsClientComponent {

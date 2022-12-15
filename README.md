@@ -24,6 +24,51 @@ TODO: Add description
 
 ![Arch](img/arch.png)
 
+
+
+## Quickstart
+
+1. Install `@upstash/edge-flags` in your project
+
+```bash
+npm install @upstash/edge-flags
+```
+
+2. Create an edge function in your project
+
+```ts
+// /api/edge-flags.ts
+import { createHandler } from "@upstash/edge-flags";
+
+export default createHandler({
+	redisUrl: process.env.UPSTASH_REDIS_REST_URL!,
+	redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
+
+/**
+ * Edge flags only works on edge functions, it will break if you do not set the runtime
+ */
+export const config = {
+	runtime: "experimental-edge",
+};
+```
+
+3. Query the flag in your frontend
+
+```ts
+// /app/index.tsx
+import { useFlag } from "@upstash/edge-flags";
+
+const { isLoading, value, error } = useFlag("my-flag");
+
+if (error) return <div>Error: {error}</div>;
+if (isLoading) return <div>Loading...</div>;
+
+return <div>Is my feature enabled: {value}</div>;
+```
+
+
+
 ## Development
 
 This monorepo is managed by turborepo and uses `pnpm` for dependency management.

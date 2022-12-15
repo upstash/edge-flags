@@ -1,10 +1,12 @@
 "use client";
-import Image from "next/image";
 import styles from "./page.module.css";
 import { useFlag } from "@upstash/edge-flags";
 
 export default function Home() {
-	const { isLoading, value, error } = useFlag("is-german");
+	const { isLoading, isEnabled, error } = useFlag("is-german");
+
+	if (isLoading) return <div>Loading...</div>;
+	if (error) return <div>Error: {error}</div>;
 
 	return (
 		<div className={styles.container}>
@@ -14,7 +16,7 @@ export default function Home() {
 				</h1>
 
 				<pre className={styles.code}>
-					{JSON.stringify({ isLoading, error, value }, null, 2)}
+					{JSON.stringify({ isLoading, error, isEnabled }, null, 2)}
 				</pre>
 			</main>
 		</div>

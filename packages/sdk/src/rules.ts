@@ -26,7 +26,7 @@ export const b = z.object({
 	/**
 	 * The flag returns this `value` if this rule evaluates to true
 	 */
-	value: z.union([z.boolean(), z.string(), z.number()]),
+	value: z.boolean(),
 });
 
 const rules = {

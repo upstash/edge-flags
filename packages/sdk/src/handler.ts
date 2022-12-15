@@ -54,6 +54,21 @@ export function createHandler(opts: HandlerConfig): NextMiddleware {
 		console.log(JSON.stringify({ geo: req.geo }));
 		url.searchParams.set(EVAL_FLAG, "true");
 		const identifier = await opts.identify(req);
+
+		const hash = await crypto.subtle.digest(
+			"SHA-256",
+			new TextEncoder().encode(identifier ?? req.ip),
+		);
+		const n = Array.from(new Uint8Array(hash)).reduce((sum, x) => {
+			sum += x;
+			return sum;
+		}, 0);
+
+		const pid = (n % 100).toString();
+
+		console.log({ pid });
+		url.searchParams.set("pid", pid);
+
 		if (identifier) {
 			url.searchParams.set("identifier", identifier);
 		}
@@ -116,6 +131,22 @@ async function evaluate(
 	}
 	console.log("Found flag", JSON.stringify(flag));
 
+	if (flag.percentage) {
+		const userPercentage = parseFloat(url.searchParams.get("pid")!);
+		if (userPercentage < flag.percentage) {
+			return NextResponse.json(
+				{ value: false },
+				{
+					status: 200,
+					// TODO: reenable cache
+					// headers: new Headers({
+					// 	"Cache-Control": `s-maxage=${opts.cacheMaxAge}, public`,
+					// }),
+				},
+			);
+		}
+	}
+
 	const evalRequest = {
 		city: url.searchParams.get("city") ?? undefined,
 		country: url.searchParams.get("country") ?? undefined,
@@ -125,6 +156,7 @@ async function evaluate(
 		ip: url.searchParams.get("ip") ?? undefined,
 		identifier: url.searchParams.get("identifier") ?? undefined,
 	};
+
 	console.log(JSON.stringify({ evalRequest }, null, 2));
 
 	for (const rule of flag.rules) {

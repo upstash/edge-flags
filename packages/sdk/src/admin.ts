@@ -46,7 +46,6 @@ export class Admin {
 			rules: [],
 			environment,
 			percentage: null,
-			value: false,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -260,7 +259,6 @@ export class Admin {
 							value: true,
 						},
 					],
-					value: Math.random() > 0.5,
 					environment,
 					percentage:
 						Math.random() > 0.5 ? Math.ceil(100 * Math.random()) : null,

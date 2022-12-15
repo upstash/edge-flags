@@ -13,6 +13,9 @@ export default createHandler({
 	identify,
 });
 
+/**
+ * Edge flags only works on edge functions, it will break if you do not set the runtime
+ */
 export const config = {
 	runtime: "experimental-edge",
 };
