@@ -133,6 +133,7 @@ async function evaluate(
 
 	if (flag.percentage) {
 		const userPercentage = parseFloat(url.searchParams.get("pid")!);
+		console.log({ userPercentage, flagPercentage: flag.percentage })
 		if (userPercentage < flag.percentage) {
 			return NextResponse.json(
 				{ value: false },
