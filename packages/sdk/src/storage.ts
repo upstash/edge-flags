@@ -3,20 +3,9 @@ import { environments } from "./environment";
 import { Environment, Flag, Rule } from "./types";
 
 export interface Storage {
-	createFlag: (flag: Flag) => Promise<void>;
+	setFlag: (flag: Flag) => Promise<void>;
 	getFlag: (flagName: string, environment: Environment) => Promise<Flag | null>;
 	listFlags: () => Promise<Flag[]>;
-	updateFlag: (
-		flagName: string,
-		environment: Environment,
-		data: {
-			name?: string;
-			enabled?: boolean;
-			rules?: Rule[];
-			percentage?: number | null;
-			updatedAt: number;
-		},
-	) => Promise<Flag>;
 	deleteFlag: (flagName: string) => Promise<void>;
 }
 
@@ -49,7 +38,7 @@ export class RestStorage implements Storage {
 		this.prefix = prefix;
 	}
 
-	public async createFlag(flag: Flag): Promise<void> {
+	public async setFlag(flag: Flag): Promise<void> {
 		const tx = this.redis.multi();
 		tx.set(
 			flagKey({
@@ -101,39 +90,6 @@ export class RestStorage implements Storage {
 			return [];
 		}
 		return this.redis.mget(...keys);
-	}
-
-	public async updateFlag(
-		flagName: string,
-		environment: Environment,
-		data: {
-			name?: string;
-			enabled?: boolean;
-			rules?: Rule[];
-			percentage?: number | null;
-			updatedAt: number;
-		},
-	): Promise<Flag> {
-		const key = flagKey({
-			prefix: this.prefix,
-			tenant: "default",
-			flagName,
-			environment,
-		});
-		const flag = await this.redis.get<Flag>(key);
-		if (!flag) {
-			throw new Error(`Flag ${flagName} not found`);
-		}
-		const updated: Flag = {
-			...flag,
-			updatedAt: data.updatedAt,
-			name: data.name ?? flag.name,
-			enabled: data.enabled ?? flag.enabled,
-			rules: data.rules ?? flag.rules,
-			percentage: data.percentage ?? flag.percentage,
-		};
-		await this.redis.set(key, updated);
-		return updated;
 	}
 
 	public async deleteFlag(flagName: string): Promise<void> {

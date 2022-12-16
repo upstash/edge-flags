@@ -22,19 +22,22 @@
   ],
   "author": "Andreas Thomas <andreas@upstash.com>",
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "test": "node --loader=tsx --test ./**/*.test.ts "
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.6",
+    "dotenv": "^16.0.3",
     "tsup": "^6.2.3",
+    "tsx": "^3.12.1",
     "typescript": "^4.9.4"
   },
   "dependencies": {
-    "react": "^18.2.0",
     "@upstash/redis": "^1.18.1",
     "next": "13.0.6",
+    "react": "^18.2.0",
     "zod": "^3.20.0"
   }
 }

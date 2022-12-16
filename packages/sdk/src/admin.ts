@@ -1,7 +1,7 @@
-import { faker } from "@faker-js/faker";
 import type { Flag, Environment, Rule } from "./types";
 import { RestStorage, Storage } from "./storage";
 import { Redis } from "@upstash/redis";
+import { environments } from "./environment";
 
 export type Options = {
 	prefix?: string;
@@ -56,7 +56,7 @@ export class Admin {
 			development: _create("development"),
 		};
 		await Promise.all(
-			Object.values(flags).map((flag) => this.storage.createFlag(flag)),
+			Object.values(flags).map((flag) => this.storage.setFlag(flag)),
 		);
 
 		return flags;
@@ -79,6 +79,23 @@ export class Admin {
 			);
 		}
 	}
+	/**
+	 * Rename a flag across all environments
+	 */
+	public async renameFlag(
+		oldName: string,
+		newName: string,
+	): Promise<Record<Environment, Flag>> {
+		return {
+			production: await this.updateFlag(oldName, "production", {
+				name: newName,
+			}),
+			preview: await this.updateFlag(oldName, "preview", { name: newName }),
+			development: await this.updateFlag(oldName, "development", {
+				name: newName,
+			}),
+		};
+	}
 
 	public async updateFlag(
 		flagName: string,
@@ -94,13 +111,24 @@ export class Admin {
 			this.validateName(data.name);
 		}
 
-		return await this.storage.updateFlag(flagName, environment, {
-			...data,
+		const flag = await this.storage.getFlag(flagName, environment);
+		if (!flag) {
+			throw new Error(`Flag ${flagName} not found`);
+		}
+		const updated: Flag = {
+			...flag,
 			updatedAt: Date.now(),
-		});
+			name: data.name ?? flag.name,
+			enabled: data.enabled ?? flag.enabled,
+			rules: data.rules ?? flag.rules,
+			percentage:
+				data.percentage === null ? null : data.percentage ?? flag.percentage,
+		};
+		await this.storage.setFlag(updated);
+		return updated;
 	}
-	public async deleteFlag(flagId: string): Promise<void> {
-		await this.storage.deleteFlag(flagId);
+	public async deleteFlag(flagGName: string): Promise<void> {
+		await this.storage.deleteFlag(flagGName);
 	}
 
 	/**
@@ -120,7 +148,7 @@ export class Admin {
 				throw new Error("Source flag not found");
 			}
 			const newFlag = { ...source, name: newName };
-			await this.storage.createFlag(newFlag);
+			await this.storage.setFlag(newFlag);
 			return newFlag;
 		};
 
@@ -147,123 +175,10 @@ export class Admin {
 		if (!source) {
 			throw new Error("Source flag not found");
 		}
-		await this.storage.createFlag({
+		await this.storage.setFlag({
 			...source,
 			environment: to,
 			updatedAt: Date.now(),
 		});
-	}
-
-	/**
-	 * DEV ONLY
-	 *
-	 * Seed some flags
-	 *
-	 *
-	 */
-	public async initDummy(): Promise<void> {
-		const envs: Environment[] = ["production", "preview", "development"];
-		for (let i = 0; i < 3; i++) {
-			const name = faker.color.human();
-			for (const environment of envs) {
-				this.storage.createFlag({
-					createdAt: Date.now(),
-					updatedAt: Date.now(),
-					name,
-					enabled: Math.random() > 0.3,
-					rules: [
-						{
-							version: "v1",
-							accessor: "ip",
-							compare: "in",
-							target: new Array(Math.ceil(5 * Math.random()))
-								.fill(0)
-								.map((_) => faker.internet.ip()),
-							value: false,
-						},
-						{
-							version: "v1",
-							accessor: "identifier",
-							compare: "not_in",
-							target: new Array(Math.ceil(5 * Math.random()))
-								.fill(0)
-								.map((_) => faker.random.alpha(4)),
-							value: false,
-						},
-						{
-							version: "v1",
-							accessor: "city",
-							compare: "contains",
-							target: "_some_suffix",
-							value: false,
-						},
-						{
-							version: "v1",
-							accessor: "city",
-							compare: "not_contains",
-							target: "_some_suffix",
-							value: true,
-						},
-						{
-							version: "v1",
-							accessor: "city",
-							compare: "eq",
-							target: faker.address.cityName(),
-							value: true,
-						},
-						{
-							version: "v1",
-							accessor: "city",
-							compare: "not_eq",
-							target: faker.address.cityName(),
-							value: false,
-						},
-						{
-							version: "v1",
-							accessor: "identifier",
-							compare: "empty",
-							value: true,
-						},
-						{
-							version: "v1",
-							accessor: "identifier",
-							compare: "not_empty",
-							value: false,
-						},
-						{
-							version: "v1",
-							accessor: "identifier",
-							compare: "gt",
-							target: "100",
-							value: true,
-						},
-						{
-							version: "v1",
-							accessor: "identifier",
-							compare: "gte",
-							target: "200",
-							value: true,
-						},
-						{
-							version: "v1",
-							accessor: "identifier",
-							compare: "lt",
-							target: "100",
-							value: true,
-						},
-						{
-							version: "v1",
-							accessor: "identifier",
-							compare: "lte",
-							target: "200",
-							value: true,
-						},
-					],
-					environment,
-					percentage:
-						Math.random() > 0.5 ? Math.ceil(100 * Math.random()) : null,
-				});
-			}
-		}
 	}
 }

@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "_dev": "ts-node ./src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "_dev": "ts-node ./src/index.ts"
   },
   "keywords": [],
   "author": "Andreas Thomas",
