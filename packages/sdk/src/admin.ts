@@ -176,9 +176,16 @@ export class Admin {
 			});
 
 			const flag = await this.getFlag(oldName, environment);
-			tx.set(newKey, flag, {
-				nx: true,
-			});
+			tx.set(
+				newKey,
+				{
+					...flag,
+					name: newName,
+				},
+				{
+					nx: true,
+				},
+			);
 			tx.sadd(listKey({ prefix: this.prefix, tenant: this.tenant }), newName);
 
 			// remove old
