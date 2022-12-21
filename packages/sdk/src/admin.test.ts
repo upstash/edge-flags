@@ -1,5 +1,5 @@
 import { Redis } from "@upstash/redis";
-import { describe, test } from "node:test";
+import { test } from "node:test";
 import { randomUUID } from "node:crypto";
 import { Admin } from "./admin";
 import assert from "node:assert";
@@ -9,8 +9,8 @@ import { environments } from "./environment";
 config();
 const admin = new Admin({ redis: Redis.fromEnv() });
 
-describe("Create a flag", async () => {
-	test("can load the flag after creating it", async () => {
+test("Create a flag", async (t) => {
+	await t.test("can load the flag after creating it", async () => {
 		const name = randomUUID();
 		const flag = await admin.createFlag({ name });
 		assert.equal(flag.development.name, name);
@@ -25,14 +25,14 @@ describe("Create a flag", async () => {
 	});
 });
 
-describe("Update a flag", async () => {
-	test("set percentage to null", async () => {
+test("Update a flag", async (t) => {
+	await t.test("set percentage to null", async () => {
 		const name = randomUUID();
 		await admin.createFlag({ name });
 
 		for (const env of environments) {
-			const percentage1 = Math.random() * 100;
-			const percentage2 = Math.random() * 100;
+			const percentage1 = Math.ceil(Math.random() * 100);
+			const percentage2 = Math.ceil(Math.random() * 100);
 			await admin.updateFlag(name, env, {
 				percentage: percentage1,
 			});
@@ -45,20 +45,20 @@ describe("Update a flag", async () => {
 			});
 
 			const f2 = await admin.getFlag(name, env);
-			assert.equal(f2!.percentage, percentage1);
+			assert.equal(f2!.percentage, percentage2);
 
 			await admin.updateFlag(name, env, {
 				percentage: null,
 			});
 
 			const f3 = await admin.getFlag(name, env);
-			assert.equal(f2!.percentage, null);
+			assert.equal(f3!.percentage, null);
 		}
 	});
 });
 
-describe("Rename a flag", async () => {
-	test("renames all environments", async () => {
+test("Rename a flag", async (t) => {
+	await t.test("renames all environments", async () => {
 		let name = randomUUID();
 
 		await admin.createFlag({ name });
@@ -74,5 +74,31 @@ describe("Rename a flag", async () => {
 			}
 			name = newName;
 		}
+	});
+});
+
+test("Setting percentage to 0", async (t) => {
+	await t.test("sets it to null", async () => {
+		const {
+			production: { name, environment },
+		} = await admin.createFlag({ name: randomUUID() });
+
+		await admin.updateFlag(name, environment, {
+			percentage: 10,
+		});
+
+		const f1 = await admin.getFlag(name, environment);
+		assert.equal(f1!.percentage, 10, "percentage should be 10 now");
+
+		await admin.updateFlag(name, environment, {
+			percentage: 0,
+		});
+
+		const f2 = await admin.getFlag(name, environment);
+		assert.equal(
+			f2!.percentage,
+			null,
+			"percentage should be disabled and set to null",
+		);
 	});
 });

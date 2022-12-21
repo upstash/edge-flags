@@ -227,7 +227,9 @@ export class Admin {
 			enabled: data.enabled ?? flag.enabled,
 			rules: data.rules ?? flag.rules,
 			percentage:
-				data.percentage === null ? null : data.percentage ?? flag.percentage,
+				data.percentage === null || data.percentage === 0
+					? null
+					: data.percentage ?? flag.percentage,
 		};
 		await this.redis.set(key, updated, { xx: true });
 		return updated;
