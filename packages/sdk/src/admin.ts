@@ -1,34 +1,82 @@
 import type { Flag, Environment, Rule } from "./types";
-import { RestStorage, Storage } from "./storage";
 import { Redis } from "@upstash/redis";
 import { environments } from "./environment";
 
+function flagKey({
+	prefix,
+	tenant = "default",
+	flagName,
+	environment,
+}: {
+	prefix: string;
+	tenant?: string;
+	flagName: string;
+	environment: Environment;
+}) {
+	return [prefix, tenant, "flags", flagName, environment].join(":");
+}
+
+function listKey({
+	prefix,
+	tenant = "default",
+}: { prefix: string; tenant?: string }) {
+	return [prefix, tenant, "flags"].join(":");
+}
+
 export type Options = {
 	prefix?: string;
+	tenant?: string;
 	redis: Redis;
 };
 
 export class Admin {
-	private storage: Storage;
+	private readonly prefix: string;
+	private readonly tenant: string;
+	private readonly redis: Redis;
 
-	constructor({ redis, prefix = "edge-flags" }: Options) {
-		this.storage = new RestStorage({ redis, prefix });
+	constructor({ redis, prefix = "edge-flags", tenant = "default" }: Options) {
+		this.prefix = prefix;
+		this.redis = redis;
+		this.tenant = tenant;
 	}
 
 	/**
 	 * Return all flags ordered by updatedAt. The most recently updated flag will be first
 	 */
 	public async listFlags(): Promise<Flag[]> {
-		const flags = await this.storage.listFlags();
+		const flagNames = await this.redis.smembers(
+			listKey({ prefix: this.prefix, tenant: this.tenant }),
+		);
+		const keys = flagNames.flatMap((id) =>
+			environments.map((env) =>
+				flagKey({
+					prefix: this.prefix,
+					tenant: this.tenant,
+					flagName: id,
+					environment: env as Environment,
+				}),
+			),
+		);
+		if (keys.length === 0) {
+			return [];
+		}
+		const flags = await this.redis.mget<Flag[]>(...keys);
 		return flags.sort((a, b) => b.updatedAt - a.updatedAt);
 	}
 
 	public async getFlag(
-		name: string,
+		flagName: string,
 		environment: Environment,
 	): Promise<Flag | null> {
-		this.validateName(name);
-		return await this.storage.getFlag(name, environment);
+		this.validateName(flagName);
+		return await this.redis.get(
+			flagKey({
+				prefix: this.prefix,
+				tenant: this.tenant,
+				flagName,
+				environment,
+			}),
+		);
 	}
 
 	/**
@@ -55,9 +103,38 @@ export class Admin {
 			preview: _create("preview"),
 			development: _create("development"),
 		};
-		await Promise.all(
-			Object.values(flags).map((flag) => this.storage.setFlag(flag)),
-		);
+
+		const tx = this.redis.multi();
+		for (const flag of Object.values(flags)) {
+			const exists = await this.redis.exists(
+				flagKey({
+					prefix: this.prefix,
+					tenant: this.tenant,
+					flagName: flag.name,
+					environment: flag.environment,
+				}),
+			);
+			if (exists) {
+				throw new Error(`A flag with this name already exists: ${flag.name}`);
+			}
+			tx.set(
+				flagKey({
+					prefix: this.prefix,
+					tenant: this.tenant,
+					flagName: flag.name,
+					environment: flag.environment,
+				}),
+				flag,
+				{
+					nx: true,
+				},
+			);
+			tx.sadd(listKey({ prefix: this.prefix, tenant: this.tenant }), flag.name);
+		}
+		const [created, _] = await tx.exec<["OK" | null, unknown]>();
+		if (!created) {
+			throw new Error(`A flag with this name already exists: ${create.name}`);
+		}
 
 		return flags;
 	}
@@ -80,55 +157,91 @@ export class Admin {
 		}
 	}
 	/**
-	 * Rename a flag across all environments
+	 * Rename a flag across all environments atomically
 	 */
-	public async renameFlag(
-		oldName: string,
-		newName: string,
-	): Promise<Record<Environment, Flag>> {
-		return {
-			production: await this.updateFlag(oldName, "production", {
-				name: newName,
-			}),
-			preview: await this.updateFlag(oldName, "preview", { name: newName }),
-			development: await this.updateFlag(oldName, "development", {
-				name: newName,
-			}),
-		};
+	public async renameFlag(oldName: string, newName: string): Promise<void> {
+		const tx = this.redis.multi();
+		for (const environment of environments) {
+			const oldKey = flagKey({
+				prefix: this.prefix,
+				tenant: this.tenant,
+				flagName: oldName,
+				environment,
+			});
+			const newKey = flagKey({
+				prefix: this.prefix,
+				tenant: this.tenant,
+				flagName: newName,
+				environment,
+			});
+
+			const flag = await this.getFlag(oldName, environment);
+			tx.set(newKey, flag, {
+				nx: true,
+			});
+			tx.sadd(listKey({ prefix: this.prefix, tenant: this.tenant }), newName);
+
+			// remove old
+			tx.del(oldKey);
+			tx.srem(listKey({ prefix: this.prefix, tenant: this.tenant }), oldName);
+		}
+
+		const [created, _] = await tx.exec<["OK" | null, unknown]>();
+		if (!created) {
+			throw new Error(`A flag with this name already exists: ${newName}`);
+		}
 	}
 
 	public async updateFlag(
 		flagName: string,
 		environment: Environment,
 		data: {
-			name?: string;
 			enabled?: boolean;
 			rules?: Rule[];
 			percentage?: number | null;
 		},
 	): Promise<Flag> {
-		if (typeof data.name !== "undefined") {
-			this.validateName(data.name);
-		}
+		this.validateName(flagName);
 
-		const flag = await this.storage.getFlag(flagName, environment);
+		const key = flagKey({
+			prefix: this.prefix,
+			tenant: this.tenant,
+			flagName,
+			environment,
+		});
+
+		const flag = await this.redis.get<Flag>(key);
 		if (!flag) {
 			throw new Error(`Flag ${flagName} not found`);
 		}
 		const updated: Flag = {
 			...flag,
 			updatedAt: Date.now(),
-			name: data.name ?? flag.name,
 			enabled: data.enabled ?? flag.enabled,
 			rules: data.rules ?? flag.rules,
 			percentage:
 				data.percentage === null ? null : data.percentage ?? flag.percentage,
 		};
-		await this.storage.setFlag(updated);
+		await this.redis.set(key, updated, { xx: true });
 		return updated;
 	}
-	public async deleteFlag(flagGName: string): Promise<void> {
-		await this.storage.deleteFlag(flagGName);
+
+	public async deleteFlag(flagName: string): Promise<void> {
+		this.validateName(flagName);
+
+		const tx = this.redis.multi();
+		for (const environment of environments) {
+			tx.del(
+				flagKey({
+					prefix: this.prefix,
+					tenant: this.tenant,
+					flagName,
+					environment,
+				}),
+			);
+		}
+		tx.srem(listKey({ prefix: this.prefix, tenant: this.tenant }), flagName);
+		await tx.exec();
 	}
 
 	/**
@@ -138,26 +251,48 @@ export class Admin {
 	 * @param flagName - the flag name to copy
 	 * @param newName - give the copied flag a new name
 	 */
-	public async copyFlag(
-		flagName: string,
-		newName: string,
-	): Promise<Record<Environment, Flag>> {
-		const copy = async (env: Environment) => {
-			const source = await this.storage.getFlag(flagName, env);
+	public async copyFlag(flagName: string, newName: string): Promise<void> {
+		const tx = this.redis.multi();
+		for (const environment of environments) {
+			const exists = await this.redis.exists(
+				flagKey({
+					prefix: this.prefix,
+					tenant: this.tenant,
+					flagName: newName,
+					environment,
+				}),
+			);
+			if (exists) {
+				throw new Error(`A flag with this name already exists: ${newName}`);
+			}
+
+			const source = await this.getFlag(flagName, environment);
 			if (!source) {
 				throw new Error("Source flag not found");
 			}
 			const newFlag = { ...source, name: newName };
-			await this.storage.setFlag(newFlag);
-			return newFlag;
-		};
 
-		return {
-			development: await copy("development"),
-			preview: await copy("preview"),
-			production: await copy("production"),
-		};
+			tx.set(
+				flagKey({
+					prefix: this.prefix,
+					tenant: this.tenant,
+					flagName: newName,
+					environment,
+				}),
+				newFlag,
+				{
+					nx: true,
+				},
+			);
+			tx.sadd(listKey({ prefix: this.prefix, tenant: this.tenant }), newName);
+		}
+		const [created, _] = await tx.exec<["OK" | null, unknown]>();
+
+		if (!created) {
+			throw new Error(`A flag with this name already exists: ${newName}`);
+		}
 	}
+
 	/**
 	 * Copy a flag configuration from one environment to another.
 	 * This overwrites the target environment
@@ -171,14 +306,29 @@ export class Admin {
 		from: Environment,
 		to: Environment,
 	): Promise<void> {
-		const source = await this.storage.getFlag(flagName, from);
+		const source = await this.getFlag(flagName, from);
 		if (!source) {
 			throw new Error("Source flag not found");
 		}
-		await this.storage.setFlag({
-			...source,
-			environment: to,
-			updatedAt: Date.now(),
-		});
+
+		const copied = await this.redis.set(
+			flagKey({
+				prefix: this.prefix,
+				tenant: this.tenant,
+				flagName,
+				environment: to,
+			}),
+			{
+				...source,
+				environment: to,
+				updatedAt: Date.now(),
+			},
+			{
+				xx: true,
+			},
+		);
+		if (!copied) {
+			throw new Error(`Error: flag was not copied: ${flagName}-${from}`);
+		}
 	}
 }
