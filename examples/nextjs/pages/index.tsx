@@ -10,11 +10,17 @@ import {
 	Toggle,
 	ToggleItem,
 	Flex,
+	TextInput,
+	Button,
+	Subtitle,
 } from "@tremor/react";
 import { useFlag } from "@upstash/edge-flags";
+import { useState } from "react";
 
 export default function Example() {
-	const { isEnabled, isLoading, error, debug } = useFlag("my-flag");
+	const [flag, setFlag] = useState("my-flag");
+	const [input, setInput] = useState(flag);
+	const { isEnabled, isLoading, error, debug } = useFlag(flag);
 	return (
 		<main
 			style={{
@@ -32,6 +38,25 @@ export default function Example() {
 				</a>
 			</Text>
 
+			<Block marginTop="mt-6">
+				<Card>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							setFlag(input);
+						}}
+					>
+						<Subtitle>Select your flag</Subtitle>
+						<Flex spaceX="space-x-2" justifyContent="justify-center">
+							<TextInput
+								value={input}
+								onChange={(v) => setInput(v.currentTarget.value)}
+							/>
+							<Button color="zinc" text="Set" onClick={() => setFlag(input)} />
+						</Flex>
+					</form>
+				</Card>
+			</Block>
 			<ColGrid
 				numColsMd={2}
 				numColsLg={5}
@@ -65,7 +90,11 @@ export default function Example() {
 					<Block truncate={true}>
 						<Text>Latency</Text>
 						{debug.latency ? (
-							<Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
+							<Flex
+								justifyContent="justify-start"
+								alignItems="items-end"
+								spaceX="space-x-2"
+							>
 								<Metric truncate={true}>
 									{Intl.NumberFormat(undefined, {
 										compactDisplay: "short",
@@ -86,12 +115,6 @@ export default function Example() {
 					</Block>
 				</Card>
 			</ColGrid>
-
-			<Block marginTop="mt-6">
-				<Card>
-					<div className="h-80" />
-				</Card>
-			</Block>
 		</main>
 	);
 }
