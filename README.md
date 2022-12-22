@@ -72,7 +72,7 @@ export async function middleware(req: NextRequest) {
 
 4. Query the flag in your frontend
 
-```ts
+```tsx
 // /app/index.tsx
 import { useFlag } from "@upstash/edge-flags";
 
