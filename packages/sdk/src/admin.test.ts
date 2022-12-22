@@ -98,3 +98,20 @@ test("Setting percentage to 0", async (t) => {
     assert.equal(f2!.percentage, null, "percentage should be disabled and set to null");
   });
 });
+
+test("Copy to env", async (t) => {
+  await t.test("overwrites the target env", async () => {
+    const name = randomUUID();
+    const { production, development } = await admin.createFlag({ name });
+
+    assert.equal(production.enabled, false);
+    assert.equal(development.enabled, false);
+    await admin.updateFlag(development.name, development.environment, {
+      enabled: true,
+    });
+
+    await admin.copyEnvironment(name, "development", "production");
+    const overwritten = await admin.getFlag(name, "production");
+    assert.equal(overwritten?.enabled, true, "prod should be enabled");
+  });
+});
