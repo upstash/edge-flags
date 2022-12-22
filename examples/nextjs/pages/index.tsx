@@ -64,19 +64,18 @@ export default function Example() {
         <Card>
           <Block truncate={true}>
             <Text>Latency</Text>
-            <Flex justifyContent="justify-start" alignItems="items-end">
-
-              <Metric truncate={true}>
-                {debug.latency
-                  ? Intl.NumberFormat(undefined, {
+            {debug.latency ?
+              <Flex justifyContent="justify-start" alignItems="items-end">
+                <Metric truncate={true}>
+                  {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
                   }).format(debug.latency)
-                  : undefined}
-              </Metric>
-              <Text>
-                ms
-              </Text>
-            </Flex>
+                  }
+                </Metric>
+                <Text>
+                  ms
+                </Text>
+              </Flex> : null}
           </Block>
         </Card>
       </ColGrid>
