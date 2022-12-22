@@ -57,7 +57,12 @@ export function createHandler(opts: HandlerConfig): NextMiddleware {
 
 		const hash = await crypto.subtle.digest(
 			"SHA-256",
-			new TextEncoder().encode(identifier ?? req.ip),
+			new TextEncoder().encode(
+				JSON.stringify({
+					geo: req.geo,
+					identifier,
+				}),
+			),
 		);
 		const n = Array.from(new Uint8Array(hash)).reduce((sum, x) => {
 			sum += x;
@@ -123,7 +128,7 @@ async function evaluate(
 	console.log("Making request to redis");
 
 	const environment =
-		(process.env.VERCEL_ENV as Environment | undefined) ?? "production";
+		(process.env.VERCEL_ENV as Environment | undefined) ?? "development";
 	console.log({ environment });
 	const flag = await admin.getFlag(flagName, environment);
 	if (!flag) {
@@ -160,6 +165,11 @@ async function evaluate(
 
 	console.log(JSON.stringify({ evalRequest }, null, 2));
 
+	const headers = new Headers();
+	if (opts.cacheMaxAge && opts.cacheMaxAge > 0) {
+		headers.set("Cache-Control", `s-maxage=${opts.cacheMaxAge}, public`);
+	}
+
 	for (const rule of flag.rules) {
 		const hit = new Rule(rule).evaluate(evalRequest);
 		console.log("evaluating rule", rule, { hit });
@@ -169,10 +179,7 @@ async function evaluate(
 
 			return NextResponse.json(res, {
 				status: 200,
-				// TODO: reenable cache
-				// headers: new Headers({
-				// 	"Cache-Control": `s-maxage=${opts.cacheMaxAge}, public`,
-				// }),
+				headers,
 			});
 		}
 	}
@@ -184,10 +191,7 @@ async function evaluate(
 		{ value: null },
 		{
 			status: 200,
-			// TODO: reenable cache
-			// headers: new Headers({
-			// 	"Cache-Control": `s-maxage=${opts.cacheMaxAge}, public`,
-			// }),
+			headers,
 		},
 	);
 }
