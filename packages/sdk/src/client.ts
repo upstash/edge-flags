@@ -92,7 +92,7 @@ export function useFlag(flagName: string): UseFlag {
 		getFlag();
 	}, [flagName]);
 
-	return { isLoading, error, isEnabled, latency };
+	return { isLoading, error, isEnabled, debug: { latency, cacheHit } };
 }
 
 export class EdgeFlagsClientComponent {
