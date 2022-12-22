@@ -54,7 +54,6 @@ export type UseFlag = {
 		latency: number | null;
 		cache: {
 			hit: string | null;
-			maxAge: string | null;
 		};
 	};
 };
@@ -65,7 +64,6 @@ export function useFlag(flagName: string): UseFlag {
 	const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
 	const [latency, setLatency] = useState<number | null>(null);
 	const [cacheHit, setCacheHit] = useState<string | null>(null);
-	const [cacheMaxAge, setCacheMaxAge] = useState<string | null>(null);
 
 	const getFlag = async () => {
 		const now = Date.now();
@@ -80,7 +78,6 @@ export function useFlag(flagName: string): UseFlag {
 			const json = (await res.json()) as { value: boolean };
 			console.log({ json });
 			setCacheHit(res.headers.get("X-Vercel-Cache"));
-			setCacheMaxAge(res.headers.get("Cache-Control"));
 			setIsEnabled(json.value);
 		} catch (err) {
 			if (err instanceof Error) {
@@ -102,7 +99,7 @@ export function useFlag(flagName: string): UseFlag {
 		isLoading,
 		error,
 		isEnabled,
-		debug: { latency, cache: { hit: cacheHit, maxAge: cacheMaxAge } },
+		debug: { latency, cache: { hit: cacheHit } },
 	};
 }
 

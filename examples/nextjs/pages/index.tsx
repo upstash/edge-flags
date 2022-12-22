@@ -97,15 +97,7 @@ export default function Example() {
 						</Metric>
 					</Block>
 				</Card>
-				<Card>
-					<Block truncate={true}>
-						<Text>Cache</Text>
 
-						<Metric truncate={true}>
-							{debug.cache.maxAge ? debug.cache.maxAge : ""}
-						</Metric>
-					</Block>
-				</Card>
 				<Card>
 					<Block truncate={true}>
 						<Text>Latency</Text>
