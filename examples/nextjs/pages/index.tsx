@@ -59,8 +59,8 @@ export default function Example() {
       </Block>
       {error ?
         <Block marginTop="mt-6">
-          <Card>
-          <Subtitle color="red">{error}</Subtitle>
+          <Card decorationColor="red">
+            <Subtitle color="red">{error}</Subtitle>
           </Card>
         </Block>
         : null}
