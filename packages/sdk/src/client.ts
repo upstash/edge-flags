@@ -52,7 +52,7 @@ export type UseFlag = {
 	 */
 	debug: {
 		latency: number | null;
-		cacheHit: boolean | null
+		cacheHit: string | null
 	}
 };
 
@@ -61,7 +61,7 @@ export function useFlag(flagName: string): UseFlag {
 	const [error, setError] = useState<string | null>(null);
 	const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
 	const [latency, setLatency] = useState<number | null>(null);
-	const [cacheHit, setCacheHit] = useState<boolean | null>(null);
+	const [cacheHit, setCacheHit] = useState<string | null>(null);
 
 	const getFlag = async () => {
 		const now = Date.now();
@@ -75,6 +75,7 @@ export function useFlag(flagName: string): UseFlag {
 			console.log(res.headers)
 			const json = (await res.json()) as { value: boolean };
 			console.log({ json });
+			setCacheHit(res.headers.get("X-Vercel-Cache"))
 			setIsEnabled(json.value);
 		} catch (err) {
 			if (err instanceof Error) {
