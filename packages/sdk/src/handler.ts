@@ -101,10 +101,11 @@ export function createHandler(opts: HandlerConfig): NextMiddleware {
 		if (typeof req.ip !== "undefined") {
 			url.searchParams.set("ip", req.ip);
 		}
+		url.pathname = "/api/edge-flags-copy";
 
-		console.log("RD", url.href);
+		console.log("RW", url.href);
 
-		return NextResponse.redirect(url.href);
+		return NextResponse.rewrite(url.href);
 	};
 }
 
