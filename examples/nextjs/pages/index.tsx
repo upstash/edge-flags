@@ -14,7 +14,7 @@ import {
 import { useFlag } from "@upstash/edge-flags";
 
 export default function Example() {
-  const { isEnabled, isLoading, error, latency } = useFlag("my-flag");
+  const { isEnabled, isLoading, error, debug } = useFlag("my-flag");
   return (
     <main
       style={{
@@ -67,10 +67,10 @@ export default function Example() {
             <Flex justifyContent="justify-start" alignItems="items-end">
 
               <Metric truncate={true}>
-                {latency
+                {debug.latency
                   ? Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
-                  }).format(latency)
+                  }).format(debug.latency)
                   : undefined}
               </Metric>
               <Text>
