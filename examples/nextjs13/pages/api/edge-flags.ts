@@ -1,16 +1,9 @@
-import { createHandler } from "@upstash/edge-flags";
-import { NextRequest } from "next/server";
+import { createEdgeHandler } from "@upstash/edge-flags";
 
-/**
- * Define a function to identify the user from an incoming request
- * This could be a userId from a session cookie for example
- */
-const identify = (req: NextRequest) => req.cookies.get("fancy cookie")?.value;
-
-export default createHandler({
+export default createEdgeHandler({
+	cacheMaxAge: 60,
 	redisUrl: process.env.UPSTASH_REDIS_REST_URL!,
 	redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!,
-	identify,
 });
 
 /**

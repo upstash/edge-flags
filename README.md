@@ -28,6 +28,10 @@ TODO: Add description
 
 ## Quickstart
 
+
+0. Go to [console.upstash.com/edge-flags](https://console.upstash.com/edge-flags) and create a flag
+TODO: Add screenshot
+
 1. Install `@upstash/edge-flags` in your project
 
 ```bash
@@ -38,11 +42,12 @@ npm install @upstash/edge-flags
 
 ```ts
 // /api/edge-flags.ts
-import { createHandler } from "@upstash/edge-flags";
+import { createEdgeHandler } from "@upstash/edge-flags";
 
-export default createHandler({
-	redisUrl: process.env.UPSTASH_REDIS_REST_URL!,
-	redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!,
+export default createEdgeHandler({
+  cacheMaxAge: 60 // cache for 60 seconds
+	redisUrl: process.env.UPSTASH_REDIS_REST_URL!, // omit to load from env automatically
+	redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!,// omit to load from env automatically
 });
 
 /**
@@ -53,7 +58,26 @@ export const config = {
 };
 ```
 
-3. Query the flag in your frontend
+3. Add middleware
+
+```ts
+// /middleware.ts
+import { NextRequest, NextResponse } from "next/server";
+import { edgeFlagsMiddleware } from "@upstash/edge-flags";
+
+export async function middleware(req: NextRequest) {
+	const url = new URL(req.url);
+
+	if (url.pathname === "/api/edge-flags") {
+		return await edgeFlagsMiddleware(req, { userId: req.ip ?? "unknown" });
+	}
+
+	return NextResponse.next();
+}
+
+```
+
+4. Query the flag in your frontend
 
 ```ts
 // /app/index.tsx

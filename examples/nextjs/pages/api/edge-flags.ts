@@ -1,12 +1,8 @@
 // /api/edge-flags.ts
-import { createHandler } from "@upstash/edge-flags";
+import { createEdgeHandler } from "@upstash/edge-flags";
 
-import type { NextRequest } from "next/server";
-const identify = (req: NextRequest) => req.ip ?? "anon";
-
-export default createHandler({
+export default createEdgeHandler({
 	cacheMaxAge: 10,
-	identify,
 	redisUrl: process.env.UPSTASH_REDIS_REST_URL!,
 	redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
