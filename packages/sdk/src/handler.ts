@@ -1,4 +1,6 @@
 import { Redis } from "@upstash/redis";
+import { rewrite } from '@vercel/edge';
+
 import {
 	NextFetchEvent,
 	NextMiddleware,
@@ -105,7 +107,7 @@ export function createHandler(opts: HandlerConfig): NextMiddleware {
 
 		console.log("RW", url.href);
 
-		return NextResponse.rewrite(url);
+		return rewrite(url);
 	};
 }
 

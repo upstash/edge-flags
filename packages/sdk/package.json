@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@upstash/redis": "^1.18.1",
+    "@vercel/edge": "^0.2.1",
     "next": "13.0.6",
     "react": "^18.2.0",
     "zod": "^3.20.0"
