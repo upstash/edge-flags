@@ -93,6 +93,16 @@ export default function Example() {
             </Metric>
           </Block>
         </Card>
+
+        <Card>
+          <Block truncate={true}>
+            <Text>Cache</Text>
+
+            <Metric truncate={true}>
+              {debug.cacheHit ? debug.cacheHit : ""}
+            </Metric>
+          </Block>
+        </Card>
         <Card>
           <Block truncate={true}>
             <Text>Latency</Text>
@@ -110,15 +120,6 @@ export default function Example() {
                 <Text>ms</Text>
               </Flex>
             ) : null}
-          </Block>
-        </Card>
-        <Card>
-          <Block truncate={true}>
-            <Text>Cache</Text>
-
-            <Metric truncate={true}>
-              {debug.cacheHit ? debug.cacheHit : ""}
-            </Metric>
           </Block>
         </Card>
       </ColGrid>
