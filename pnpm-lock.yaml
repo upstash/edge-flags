@@ -29,7 +29,6 @@ importers:
 
   examples/nextjs:
     specifiers:
-      '@heroicons/react': ^2.0.13
       '@tremor/react': ^1.3.1
       '@types/node': ^18.11.13
       '@types/react': ^18.0.26
@@ -42,7 +41,6 @@ importers:
       react-dom: 18.2.0
       typescript: 4.9.4
     dependencies:
-      '@heroicons/react': 2.0.13_react@18.2.0
       '@tremor/react': 1.3.1_v2m5e27vhdewzwhryxwfaorcca
       '@upstash/edge-flags': link:../../packages/sdk
       next: 13.0.6_biqbaboplfbrettd7655fr4n2y
@@ -392,14 +390,6 @@ packages:
     resolution: {integrity: sha512-XK6BTq1NDMo9Xqw/YkYyGjSsg44fbNwYRx7QK2CuoQgyy+f1rrTDHoExVM5PsyXCtfl2vs2vVJ0MN0yN6LppRw==}
     engines: {node: '>=14.0.0', npm: '>=6.0.0'}
     dev: true
-
-  /@heroicons/react/2.0.13_react@18.2.0:
-    resolution: {integrity: sha512-iSN5XwmagrnirWlYEWNPdCDj9aRYVD/lnK3JlsC9/+fqGF80k8C7rl+1HCvBX0dBoagKqOFBs6fMhJJ1hOg1EQ==}
-    peerDependencies:
-      react: '>= 16'
-    dependencies:
-      react: 18.2.0
-    dev: false
 
   /@humanwhocodes/config-array/0.11.8:
     resolution: {integrity: sha512-UybHIJzJnR5Qc/MsD9Kr+RpO2h+/P1GhOwdiLPXK5TWk5sgTdu88bTD9UP+CKbPPh5Rni1u0GjAdYQLemG8g+g==}
