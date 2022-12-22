@@ -34,7 +34,7 @@ export default function Example() {
 
 			<ColGrid
 				numColsMd={2}
-				numColsLg={4}
+				numColsLg={5}
 				gapX="gap-x-6"
 				gapY="gap-y-6"
 				marginTop="mt-6"
@@ -65,7 +65,7 @@ export default function Example() {
 					<Block truncate={true}>
 						<Text>Latency</Text>
 						{debug.latency ? (
-							<Flex justifyContent="justify-start" alignItems="items-end">
+							<Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
 								<Metric truncate={true}>
 									{Intl.NumberFormat(undefined, {
 										compactDisplay: "short",
