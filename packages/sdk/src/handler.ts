@@ -105,7 +105,7 @@ export function createHandler(opts: HandlerConfig): NextMiddleware {
 
 		console.log("RW", url.href);
 
-		return NextResponse.rewrite(url.href);
+		return NextResponse.rewrite(url);
 	};
 }
 
