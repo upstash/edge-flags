@@ -8,29 +8,23 @@
 </div>
 <br/>
 
-
 TODO: Add description
 
 ## Powered by
 
 - [Upstash Global Redis Database](https://docs.upstash.com/redis/features/globaldatabase)
-- [Next.js](https://nextjs.org) 
+- [Next.js](https://nextjs.org)
 - [Vercel](https://vercel.com)
 
 <br/>
 
-
-
-
 ![Arch](img/arch.png)
-
-
 
 ## Quickstart
 
-
-0. Go to [console.upstash.com/edge-flags](https://console.upstash.com/edge-flags) and create a flag
-TODO: Add screenshot
+0. Go to
+   [console.upstash.com/edge-flags](https://console.upstash.com/edge-flags) and
+   create a flag TODO: Add screenshot
 
 1. Install `@upstash/edge-flags` in your project
 
@@ -66,15 +60,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { edgeFlagsMiddleware } from "@upstash/edge-flags";
 
 export async function middleware(req: NextRequest) {
-	const url = new URL(req.url);
+  const url = new URL(req.url);
 
-	if (url.pathname === "/api/edge-flags") {
-		return await edgeFlagsMiddleware(req, { userId: req.ip ?? "unknown" });
-	}
+  if (url.pathname === "/api/edge-flags") {
+    return await edgeFlagsMiddleware(req, { userId: req.ip ?? "unknown" });
+  }
 
-	return NextResponse.next();
+  return NextResponse.next();
 }
-
 ```
 
 4. Query the flag in your frontend
@@ -91,8 +84,6 @@ if (isLoading) return <div>Loading...</div>;
 return <div>Is my feature enabled: {value}</div>;
 ```
 
-
-
 ## Development
 
 This monorepo is managed by turborepo and uses `pnpm` for dependency management.
@@ -104,47 +95,49 @@ pnpm install
 ```
 
 #### Build
-  
+
 ```bash
 pnpm build
 ```
 
 ## Database Schema
 
-All configuration is stored in Redis `String` data types. Each flag is accessible through a key like
+All configuration is stored in Redis `String` data types. Each flag is
+accessible through a key like
 
 ```
 STRING
 edge-flags:{TENANT}:flags:{FLAG_ID}:{ENVIRONMENT}
 ```
-In addition to the flags, there will be a single set that contains all the flag IDs.
-We can not guarantee the database is only used for edge-flags so we need to keep track of the flags we have created instead of using a potentially expensive `SCAN` operation.
+
+In addition to the flags, there will be a single set that contains all the flag
+IDs. We can not guarantee the database is only used for edge-flags so we need to
+keep track of the flags we have created instead of using a potentially expensive
+`SCAN` operation.
+
 ```
 SET 
 edge-flags:{TENANT}:flags
 ```
 
-- `TENANT` is currently unused (set as `default`) but reserved for future use. ie for managing multiple projects int a single database
+- `TENANT` is currently unused (set as `default`) but reserved for future use.
+  ie for managing multiple projects int a single database
 - `FLAG_ID` is the unique identifier for the flag
-- `ENVIRONMENT` is the environment the flag is targeting. ie `production`, `preview`, `development`
+- `ENVIRONMENT` is the environment the flag is targeting. ie `production`,
+  `preview`, `development`
 
 ### Packages
 
 - **/packages/sdk:** The SDK to be imported into your project
-- **/packages/web:** The management interface you can selfhost [Link](https://edge-flags.vercel.app)
+- **/packages/web:** The management interface you can selfhost
+  [Link](https://edge-flags.vercel.app)
 - **/examples/nextjs:** TODO: An example Next.js app using the SDK
-- **/examples/nextjs12:** TODO: Using the SDK with Next.js 12 
+- **/examples/nextjs12:** TODO: Using the SDK with Next.js 12
 
 ## Authors
 
 This project was originally created by
+
 - [@ademilter](https://twitter.com/ademilter)
 - [@chronarkdotdev](https://twitter.com/chronarkdotdev)
 - [@enesakar](https://twitter.com/enesakar)
-
-
-
-
-
-
-
