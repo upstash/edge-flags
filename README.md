@@ -76,12 +76,12 @@ export async function middleware(req: NextRequest) {
 // /app/index.tsx
 import { useFlag } from "@upstash/edge-flags";
 
-const { isLoading, value, error } = useFlag("my-flag");
+const { isEnabled, isLoading, error } = useFlag(flag);
 
 if (error) return <div>Error: {error}</div>;
 if (isLoading) return <div>Loading...</div>;
 
-return <div>Is my feature enabled: {value}</div>;
+return <div>Is my feature enabled: {isEnabled}</div>;
 ```
 
 ## Development
