@@ -73,23 +73,17 @@ export default function Example() {
 			>
 				<Card>
 					<Block truncate={true}>
-						<Text>Loading</Text>
+						<Text>Enabled</Text>
 						<Metric truncate={true}>
-							{isLoading.toString().toUpperCase()}
+							{isEnabled?.toString().toUpperCase()}
 						</Metric>
 					</Block>
 				</Card>
 				<Card>
 					<Block truncate={true}>
-						<Text>Error</Text>
-						<Metric truncate={true}>{error ?? "-"}</Metric>
-					</Block>
-				</Card>
-				<Card>
-					<Block truncate={true}>
-						<Text>Enabled</Text>
+						<Text>Loading</Text>
 						<Metric truncate={true}>
-							{isEnabled?.toString().toUpperCase()}
+							{isLoading.toString().toUpperCase()}
 						</Metric>
 					</Block>
 				</Card>
