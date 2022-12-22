@@ -34,7 +34,7 @@ importers:
       '@types/node': ^18.11.13
       '@types/react': ^18.0.26
       '@types/react-dom': ^18.0.6
-      '@upstash/edge-flags': ^0.0.15
+      '@upstash/edge-flags': workspace:*
       eslint: 8.30.0
       eslint-config-next: 13.0.7
       next: 13.0.6
@@ -44,7 +44,7 @@ importers:
     dependencies:
       '@heroicons/react': 2.0.13_react@18.2.0
       '@tremor/react': 1.3.1_v2m5e27vhdewzwhryxwfaorcca
-      '@upstash/edge-flags': 0.0.15_react-dom@18.2.0
+      '@upstash/edge-flags': link:../../packages/sdk
       next: 13.0.6_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -859,23 +859,6 @@ packages:
       '@typescript-eslint/types': 5.47.0
       eslint-visitor-keys: 3.3.0
     dev: true
-
-  /@upstash/edge-flags/0.0.15_react-dom@18.2.0:
-    resolution: {integrity: sha512-iqomDklbZP3McBySxn+czTQ4W7pjtzyB0aFDi4yJyLX0sjpAiZ+vU+J7U8DV6qznFJrqo1p0ZIeoRkPW/W1jTA==}
-    dependencies:
-      '@upstash/redis': 1.18.1
-      next: 13.0.6_biqbaboplfbrettd7655fr4n2y
-      react: 18.2.0
-      zod: 3.20.2
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
-      - encoding
-      - fibers
-      - node-sass
-      - react-dom
-      - sass
-    dev: false
 
   /@upstash/redis/1.18.1:
     resolution: {integrity: sha512-wk0KTRBW1VENdkJY62Oh0RZWSzrXOHQh6nvVs5fes/zYZzB9byUDN7oB2uylh+YjPHtAxbdrjZ68MA6g2mRQow==}

@@ -12,10 +12,9 @@ import {
 	Flex,
 } from "@tremor/react";
 import { useFlag } from "@upstash/edge-flags";
-import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function Example() {
-	const { isEnabled, isLoading, error } = useFlag("my-flag");
+	const { isEnabled, isLoading, error, latency } = useFlag("my-flag");
 	return (
 		<main
 			style={{
@@ -35,7 +34,7 @@ export default function Example() {
 
 			<ColGrid
 				numColsMd={2}
-				numColsLg={3}
+				numColsLg={4}
 				gapX="gap-x-6"
 				gapY="gap-y-6"
 				marginTop="mt-6"
@@ -59,6 +58,18 @@ export default function Example() {
 						<Text>Enabled</Text>
 						<Metric truncate={true}>
 							{isEnabled?.toString().toUpperCase()}
+						</Metric>
+					</Block>
+				</Card>
+				<Card>
+					<Block truncate={true}>
+						<Text>Latency [ms]</Text>
+						<Metric truncate={true}>
+							{latency
+								? Intl.NumberFormat(undefined, {
+										compactDisplay: "short",
+								  }).format(latency)
+								: undefined}
 						</Metric>
 					</Block>
 				</Card>

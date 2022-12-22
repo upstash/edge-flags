@@ -45,14 +45,20 @@ export type UseFlag = {
 	isLoading: boolean;
 	error: string | null;
 	isEnabled: boolean | null;
+	/**
+	 * For development purposes only
+	 */
+	latency: number | null;
 };
 
 export function useFlag(flagName: string): UseFlag {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
+	const [latency, setLatency] = useState<number | null>(null);
 
 	const getFlag = async () => {
+		const now = Date.now();
 		try {
 			setIsLoading(true);
 			const res = await fetch(`/api/edge-flags?flag=${flagName}`);
@@ -70,6 +76,7 @@ export function useFlag(flagName: string): UseFlag {
 				throw err;
 			}
 		} finally {
+			setLatency(Date.now() - now);
 			setIsLoading(false);
 		}
 	};
@@ -78,7 +85,7 @@ export function useFlag(flagName: string): UseFlag {
 		getFlag();
 	}, [flagName]);
 
-	return { isLoading, error, isEnabled };
+	return { isLoading, error, isEnabled, latency };
 }
 
 export class EdgeFlagsClientComponent {
