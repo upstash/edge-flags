@@ -47,8 +47,13 @@ export type UseFlag = {
 	isEnabled: boolean | null;
 	/**
 	 * For development purposes only
+	 * 
+	 * This can change at any time
 	 */
-	latency: number | null;
+	debug: {
+		latency: number | null;
+		cacheHit: boolean | null
+	}
 };
 
 export function useFlag(flagName: string): UseFlag {
@@ -56,6 +61,7 @@ export function useFlag(flagName: string): UseFlag {
 	const [error, setError] = useState<string | null>(null);
 	const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
 	const [latency, setLatency] = useState<number | null>(null);
+	const [cacheHit, setCacheHit] = useState<boolean | null>(null);
 
 	const getFlag = async () => {
 		const now = Date.now();
@@ -66,6 +72,7 @@ export function useFlag(flagName: string): UseFlag {
 				setError(await res.text());
 				return;
 			}
+			console.log(res.headers)
 			const json = (await res.json()) as { value: boolean };
 			console.log({ json });
 			setIsEnabled(json.value);
