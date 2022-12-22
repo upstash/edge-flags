@@ -47,13 +47,13 @@ export type UseFlag = {
 	isEnabled: boolean | null;
 	/**
 	 * For development purposes only
-	 * 
+	 *
 	 * This can change at any time
 	 */
 	debug: {
 		latency: number | null;
-		cacheHit: string | null
-	}
+		cacheHit: string | null;
+	};
 };
 
 export function useFlag(flagName: string): UseFlag {
@@ -72,10 +72,10 @@ export function useFlag(flagName: string): UseFlag {
 				setError(await res.text());
 				return;
 			}
-			console.log(res.headers)
+			console.log(res.headers);
 			const json = (await res.json()) as { value: boolean };
 			console.log({ json });
-			setCacheHit(res.headers.get("X-Vercel-Cache"))
+			setCacheHit(res.headers.get("X-Vercel-Cache"));
 			setIsEnabled(json.value);
 		} catch (err) {
 			if (err instanceof Error) {
