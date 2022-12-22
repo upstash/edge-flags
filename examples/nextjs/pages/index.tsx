@@ -57,6 +57,13 @@ export default function Example() {
           </form>
         </Card>
       </Block>
+      {error ?
+        <Block marginTop="mt-6">
+          <Card>
+          <Subtitle color="red">{error}</Subtitle>
+          </Card>
+        </Block>
+        : null}
       <ColGrid
         numColsMd={2}
         numColsLg={4}
@@ -89,16 +96,12 @@ export default function Example() {
         <Card>
           <Block truncate={true}>
             <Text>Latency</Text>
-            {debug.latency && debug.cacheHit ? (
+            {debug.latency ? (
               <Flex
                 justifyContent="justify-start"
                 alignItems="items-end"
                 spaceX="space-x-2"
               >
-                <Metric truncate={true}>
-                  {debug.cacheHit ? debug.cacheHit : ""}
-                </Metric>
-                <Text>-</Text>
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
@@ -109,7 +112,15 @@ export default function Example() {
             ) : null}
           </Block>
         </Card>
+        <Card>
+          <Block truncate={true}>
+            <Text>Cache</Text>
 
+            <Metric truncate={true}>
+              {debug.cacheHit ? debug.cacheHit : ""}
+            </Metric>
+          </Block>
+        </Card>
       </ColGrid>
     </main>
   );
