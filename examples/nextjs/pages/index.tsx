@@ -64,7 +64,7 @@ export default function Example() {
         <Card>
           <Block truncate={true}>
             <Text>Latency</Text>
-            <Flex>
+            <Flex justifyContent="justify-start" alignItems="items-end">
 
               <Metric truncate={true}>
                 {latency
