@@ -59,7 +59,7 @@ export default function Example() {
 			</Block>
 			<ColGrid
 				numColsMd={2}
-				numColsLg={5}
+				numColsLg={3}
 				gapX="gap-x-6"
 				gapY="gap-y-6"
 				marginTop="mt-6"
