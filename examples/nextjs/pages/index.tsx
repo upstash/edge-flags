@@ -93,7 +93,16 @@ export default function Example() {
 						<Text>Cache</Text>
 
 						<Metric truncate={true}>
-							{debug.cacheHit ? debug.cacheHit : ""}
+							{debug.cache.hit ? debug.cache.hit : ""}
+						</Metric>
+					</Block>
+				</Card>
+				<Card>
+					<Block truncate={true}>
+						<Text>Cache</Text>
+
+						<Metric truncate={true}>
+							{debug.cache.maxAge ? debug.cache.maxAge : ""}
 						</Metric>
 					</Block>
 				</Card>
