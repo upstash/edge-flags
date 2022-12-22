@@ -78,6 +78,15 @@ export default function Example() {
               </Flex> : null}
           </Block>
         </Card>
+        <Card>
+          <Block truncate={true}>
+            <Text>Cache</Text>
+
+            <Metric truncate={true}>
+              {debug.cache}
+            </Metric>
+          </Block>
+        </Card>
       </ColGrid>
 
       <Block marginTop="mt-6">
