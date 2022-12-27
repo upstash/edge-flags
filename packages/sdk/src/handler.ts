@@ -1,8 +1,10 @@
 import { Redis } from "@upstash/redis";
 import { NextFetchEvent, NextMiddleware, NextRequest, NextResponse } from "next/server";
+import { environments } from "../dist";
 
 import { Admin } from "./admin";
-import { Rule } from "./rules";
+import { evaluate } from "./evaluation";
+import { EvalRequest } from "./rules";
 import { Environment } from "./types";
 
 export type HandlerConfig = (
@@ -58,61 +60,38 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
         : Redis.fromEnv();
 
     const admin = new Admin({ redis, prefix: opts.prefix });
-    console.log("Making request to redis");
-
-    const environment = (process.env.VERCEL_ENV as Environment | undefined) ?? "development";
-    console.log({ environment });
-    const flag = await admin.getFlag(flagName, environment);
+    const flag = await admin.getFlag(flagName, (process.env.VERCEL_ENV as Environment) ?? "production");
     if (!flag) {
-      return new NextResponse("Flag not found", { status: 404 });
-    }
-    console.log("Found flag", JSON.stringify(flag));
-
-    if (flag.percentage) {
-      const userPercentage = parseFloat(url.searchParams.get("pid")!);
-      console.log({ userPercentage, flagPercentage: flag.percentage });
-      if (userPercentage < flag.percentage) {
-        return NextResponse.json(
-          { value: false },
-          {
-            status: 200,
-            headers,
-          },
-        );
-      }
-    }
-
-    const evalRequest = {
-      city: url.searchParams.get("city") ?? undefined,
-      country: url.searchParams.get("country") ?? undefined,
-      region: url.searchParams.get("region") ?? undefined,
-      latitude: url.searchParams.get("latitude") ?? undefined,
-      longitude: url.searchParams.get("longitude") ?? undefined,
-      ip: url.searchParams.get("ip") ?? undefined,
-      userId: url.searchParams.get("userId") ?? undefined,
-    };
-
-    console.log(JSON.stringify({ evalRequest }, null, 2));
-
-    for (const rule of flag.rules) {
-      const hit = new Rule(rule).evaluate(evalRequest);
-      console.log("evaluating rule", rule, { hit });
-      if (hit) {
-        const res = { value: rule.value };
-        console.log("Returning", res);
-
-        return NextResponse.json(res, {
-          status: 200,
+      return NextResponse.json(
+        { error: `Flag not found: ${flagName}` },
+        {
+          status: 404,
           headers,
-        });
-      }
+        },
+      );
     }
+
+    const evalRequest: EvalRequest = {};
+
+    url.searchParams.forEach((value, key) => {
+      evalRequest[key] = value;
+    });
+
+    const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(evalRequest)));
+    const hashSum = Array.from(new Uint8Array(hash)).reduce((sum, x) => {
+      sum += x;
+      return sum;
+    }, 0);
+
+    const percentage = hashSum % 100;
+
+    const value = evaluate(flag, percentage, evalRequest);
 
     /**
      * No rule applied
      */
     return NextResponse.json(
-      { value: null },
+      { value },
       {
         status: 200,
         headers,

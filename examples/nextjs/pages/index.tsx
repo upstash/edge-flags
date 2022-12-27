@@ -14,42 +14,74 @@ import {
   Button,
   Subtitle,
 } from "@tremor/react";
+import { TrashIcon, ArrowPathIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { useFlag } from "@upstash/edge-flags";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Example() {
   const [flag, setFlag] = useState("my-flag");
-  const [input, setInput] = useState(flag);
-  const { isEnabled, isLoading, error, debug } = useFlag(flag);
+  const [attribute, setAttribute] = useState<{ name: string; value: string } | null>(null);
+
+  const { isEnabled, isLoading, error, debug, refresh } = useFlag(
+    flag,
+    attribute
+      ? {
+        [attribute.name]: attribute.value,
+      }
+      : undefined,
+  );
+
+  useEffect(()=>{
+    refresh()
+  },[flag, attribute])
+
   return (
     <main
       style={{
         margin: "8rem",
       }}
     >
-      <Title>@upstash/edge-flags</Title>
-      <Text color="blue">
-        <a href="https://console-git-feature-flag-upstash.vercel.app/edge-flags" target="_blank" rel="noreferrer">
-          console.upstash.com/edge-flags
-        </a>
-      </Text>
+      <Flex>
+        <Block>
+          <Title>@upstash/edge-flags</Title>
+          <Text color="blue">
+            <a href="https://console-git-feature-flag-upstash.vercel.app/edge-flags" target="_blank" rel="noreferrer">
+              console.upstash.com/edge-flags
+            </a>
+          </Text>
+        </Block>
+        <Button
+          color="emerald"
+          icon={ArrowPathIcon}
+          text="Reload"
+          disabled={isLoading}
+          loading={isLoading}
+          onClick={refresh}
+        />
+      </Flex>
 
-      <Block marginTop="mt-6">
-        <Card>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setFlag(input);
-            }}
-          >
-            <Subtitle>Select your flag</Subtitle>
-            <Flex spaceX="space-x-2" justifyContent="justify-center">
-              <TextInput value={input} onChange={(v) => setInput(v.currentTarget.value)} />
-              <Button color="zinc" text="Set" onClick={() => setFlag(input)} />
-            </Flex>
-          </form>
-        </Card>
-      </Block>
+      <Card marginTop="mt-6">
+        <Block>
+          <Subtitle>Select your flag</Subtitle>
+
+          <TextInput value={flag} onChange={(v) => setFlag(v.currentTarget.value)} />
+        </Block>
+        <Block marginTop="mt-6">
+          <Subtitle>Add a custom attribute</Subtitle>
+          <Flex spaceX="space-x-2" justifyContent="justify-center">
+            <TextInput
+              value={attribute?.name ?? ""}
+              onChange={(v) => setAttribute({ name: v.currentTarget.value, value: attribute?.value ?? "" })}
+            />
+            <TextInput
+              value={attribute?.value ?? ""}
+              onChange={(v) => setAttribute({ name: attribute?.name ?? "", value: v.currentTarget.value })}
+            />
+
+
+          </Flex>
+        </Block>
+      </Card>
       {error ? (
         <Block marginTop="mt-6">
           <Card decorationColor="red">

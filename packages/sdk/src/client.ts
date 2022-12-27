@@ -1,3 +1,4 @@
+import { URLSearchParams } from "next/dist/compiled/@edge-runtime/primitives/url";
 import { setLazyProp } from "next/dist/server/api-utils";
 import { useEffect, useState } from "react";
 
@@ -21,7 +22,7 @@ export type EdgeFlagsConfig = {
 
 // 	private async eval(flagName: string): Promise<boolean> {
 // 		const url = new URL(this.url)
-// 		url.searchParams.set("flag", flagName)
+// 		params.set("flag", flagName)
 // 		console.log({url})
 // 		const res = await fetch(url)
 // 		if (res.status !== 200) {
@@ -45,6 +46,7 @@ export type UseFlag = {
   isLoading: boolean;
   error: string | null;
   isEnabled: boolean | null;
+  refresh: () => Promise<void>;
   /**
    * For development purposes only
    *
@@ -58,7 +60,7 @@ export type UseFlag = {
   };
 };
 
-export function useFlag(flagName: string): UseFlag {
+export function useFlag(flagName: string, attributes?: Record<string, string>): UseFlag {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
@@ -69,7 +71,15 @@ export function useFlag(flagName: string): UseFlag {
     const now = Date.now();
     try {
       setIsLoading(true);
-      const res = await fetch(`/api/edge-flags?flag=${flagName}`);
+      const params = new URLSearchParams();
+
+      params.set("flag", flagName);
+      if (attributes) {
+        for (const [k, v] of Object.entries(attributes)) {
+          params.set(k, v);
+        }
+      }
+      const res = await fetch(`/api/edge-flags?${params.toString()}`);
       if (!res.ok) {
         setError(await res.text());
         return;
@@ -99,35 +109,7 @@ export function useFlag(flagName: string): UseFlag {
     isLoading,
     error,
     isEnabled,
+    refresh: getFlag,
     debug: { latency, cache: { hit: cacheHit } },
   };
-}
-
-export class EdgeFlagsClientComponent {
-  private url: URL;
-  constructor(config?: EdgeFlagsConfig) {
-    const host = process.env.VERCEL_URL ?? process.env.NEXT_PUBLIC_VERCEL_URL;
-
-    const baseUrl = host ? `https://${host}` : "http://localhost:3000";
-    this.url = new URL("/api/edge-flags", baseUrl);
-  }
-
-  private async eval(flagName: string): Promise<boolean> {
-    const url = new URL(this.url);
-    url.searchParams.set("flag", flagName);
-    console.log({ url });
-    const res = await fetch(url);
-    if (res.status !== 200) {
-      throw new Error(await res.text());
-    }
-    const { value } = (await res.json()) as { value: boolean };
-    return value;
-  }
-
-  /**
-   * Check if a boolean feature flag is enabled or not
-   */
-  public async isEnabled(flagName: string): Promise<boolean> {
-    return await this.eval(flagName);
-  }
 }

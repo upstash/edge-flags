@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+export type EvalRequest = {
+  [custom: string]: string | undefined;
+  city?: string;
+  country?: string;
+  region?: string;
+  latitude?: string;
+  longitude?: string;
+  ip?: string;
+};
+
 export const comparator = z.enum([
   // a value is a member of a predefined set
   "in",
@@ -17,7 +27,7 @@ export const comparator = z.enum([
   "lte",
 ]);
 
-const keys = z.enum(["city", "country", "region", "ip", "identifier"]);
+const keys = z.enum(["city", "country", "region", "ip"]);
 
 export const b = z.object({
   version: z.string(),
@@ -143,16 +153,9 @@ export class Rule {
     return JSON.stringify(this.schema);
   }
 
-  public evaluate(req: {
-    city?: string;
-    country?: string;
-    region?: string;
-    latitude?: string;
-    longitude?: string;
-    ip?: string;
-    identifier?: string;
-  }): boolean {
+  public evaluate(req: EvalRequest): boolean {
     const value = req[this.schema.accessor];
+    console.log("Evaluating", JSON.stringify({ accessor: this.schema.accessor, value, req }, null, 2));
     if (typeof value === "undefined") {
       return false;
     }

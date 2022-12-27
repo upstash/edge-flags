@@ -1,37 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export type MiddlewareConfig = {
-  userId: string;
-};
-
-export async function edgeFlagsMiddleware(req: NextRequest, opts: MiddlewareConfig): Promise<NextResponse> {
+export function edgeFlagsMiddleware(req: NextRequest): NextResponse {
   const url = new URL(req.url);
 
   console.log("Preparing geo data");
   console.log(JSON.stringify({ geo: req.geo }));
-
-  const hash = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(
-      JSON.stringify({
-        geo: req.geo,
-        userId: opts.userId,
-      }),
-    ),
-  );
-  const n = Array.from(new Uint8Array(hash)).reduce((sum, x) => {
-    sum += x;
-    return sum;
-  }, 0);
-
-  const pid = (n % 100).toString();
-
-  console.log({ pid });
-  url.searchParams.set("pid", pid);
-
-  if (opts.userId) {
-    url.searchParams.set("userId", opts.userId);
-  }
 
   if (typeof req.geo?.city !== "undefined") {
     url.searchParams.set("city", req.geo.city);

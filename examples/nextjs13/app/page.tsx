@@ -2,6 +2,8 @@
 import styles from "./page.module.css";
 import { useFlag } from "@upstash/edge-flags";
 
+export const revalidate = 0; // disable cache
+
 export default function Home() {
   const { isLoading, isEnabled, error } = useFlag("is-german");
 
