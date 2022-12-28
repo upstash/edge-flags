@@ -41,14 +41,14 @@ import { createEdgeHandler } from "@upstash/edge-flags";
 export default createEdgeHandler({
   cacheMaxAge: 60, // cache for 60 seconds
   redisUrl: process.env.UPSTASH_REDIS_REST_URL!, // omit to load from env automatically
-  redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!,// omit to load from env automatically
+  redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!, // omit to load from env automatically
 });
 
 /**
  * Edge flags only works on edge functions, it will break if you do not set the runtime
  */
 export const config = {
-	runtime: "experimental-edge",
+  runtime: "experimental-edge",
 };
 ```
 
@@ -76,12 +76,26 @@ export async function middleware(req: NextRequest) {
 // /app/index.tsx
 import { useFlag } from "@upstash/edge-flags";
 
-const { isEnabled, isLoading, error } = useFlag(flag);
+const { isEnabled, isLoading, error } = useFlag("flag-name");
 
 if (error) return <div>Error: {error}</div>;
 if (isLoading) return <div>Loading...</div>;
 
 return <div>Is my feature enabled: {isEnabled}</div>;
+```
+
+## Custom attributes
+
+`useFlag` accepts an optional object that can be used to pass custom attributes
+to be evaluated in the flag rules.
+
+```tsx
+const attributes: Record<string, string> = {
+  userId: "chronark",
+  role: "admin",
+};
+
+useFlag("flag-name", attributes);
 ```
 
 ## Development
@@ -107,12 +121,10 @@ accessible through a key like
 
 ```
 STRING
-edge-flags:{TENANT}:flags:{FLAG_ID}:{ENVIRONMENT}
+edge-flags:{TENANT}:flags:{FLAG_NAME}:{ENVIRONMENT}
 ```
 
-In addition to the flags, there will be a single set that contains all the flag
-IDs. We can not guarantee the database is only used for edge-flags so we need to
-keep track of the flags we have created instead of using a potentially expensive
+In addition to the flags, there will be a single set that contains all the flag IDs. We can not guarantee the database is only used for edge-flags so we need to keep track of the flags we have created instead of using a potentially expensive
 `SCAN` operation.
 
 ```
@@ -122,22 +134,19 @@ edge-flags:{TENANT}:flags
 
 - `TENANT` is currently unused (set as `default`) but reserved for future use.
   ie for managing multiple projects int a single database
-- `FLAG_ID` is the unique identifier for the flag
+- `FLAG_NAME` is the unique identifier for the flag
 - `ENVIRONMENT` is the environment the flag is targeting. ie `production`,
   `preview`, `development`
 
 ### Packages
 
 - **/packages/sdk:** The SDK to be imported into your project
-- **/packages/web:** The management interface you can selfhost
-  [Link](https://edge-flags.vercel.app)
-- **/examples/nextjs:** TODO: An example Next.js app using the SDK
-- **/examples/nextjs12:** TODO: Using the SDK with Next.js 12
+- **/examples/nextjs:** An example Next.js app using the SDK
 
 ## Authors
 
 This project was originally created by
 
 - [@ademilter](https://twitter.com/ademilter)
-- [@chronarkdotdev](https://twitter.com/chronarkdotdev)
+- [@chronark_](https://twitter.com/chronark_)
 - [@enesakar](https://twitter.com/enesakar)

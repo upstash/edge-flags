@@ -68,6 +68,8 @@ export function useFlag(flagName: string, attributes?: Record<string, string>): 
   const [cacheHit, setCacheHit] = useState<string | null>(null);
 
   const getFlag = async () => {
+    setError(null);
+
     const now = Date.now();
     try {
       setIsLoading(true);

@@ -1,6 +1,5 @@
 import { Redis } from "@upstash/redis";
 import { NextFetchEvent, NextMiddleware, NextRequest, NextResponse } from "next/server";
-import { environments } from "../dist";
 
 import { Admin } from "./admin";
 import { evaluate } from "./evaluation";

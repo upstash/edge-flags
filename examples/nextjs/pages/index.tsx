@@ -26,14 +26,14 @@ export default function Example() {
     flag,
     attribute
       ? {
-        [attribute.name]: attribute.value,
-      }
+          [attribute.name]: attribute.value,
+        }
       : undefined,
   );
 
-  useEffect(()=>{
-    refresh()
-  },[flag, attribute])
+  useEffect(() => {
+    refresh();
+  }, [flag, attribute]);
 
   return (
     <main
@@ -77,8 +77,6 @@ export default function Example() {
               value={attribute?.value ?? ""}
               onChange={(v) => setAttribute({ name: attribute?.name ?? "", value: v.currentTarget.value })}
             />
-
-
           </Flex>
         </Block>
       </Card>
