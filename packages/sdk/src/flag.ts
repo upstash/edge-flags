@@ -4,6 +4,7 @@ import { rule } from "./rules";
 export const flag = z.object({
   // The name must be unique per tenant but is shared across environments
   name: z.string(),
+  version: z.string(),
   enabled: z.boolean(),
   rules: z.array(rule),
   environment: z.enum(["development", "preview", "production"]),

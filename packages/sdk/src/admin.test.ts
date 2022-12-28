@@ -54,6 +54,30 @@ describe("Update a flag", () => {
       expect(f3!.percentage == null);
     }
   });
+  test("use custom attribute", async () => {
+    const name = randomUUID();
+    await admin.createFlag({ name });
+
+    for (const env of environments) {
+      const attributeName = randomUUID();
+      const attributeValue = randomUUID();
+
+      await admin.updateFlag(name, env, {
+        rules: [
+          {
+            accessor: attributeName,
+            compare: "eq",
+            target: attributeValue,
+            value: true,
+          },
+        ],
+      });
+
+      const flag = await admin.getFlag(name, env);
+      expect(flag?.rules.length === 1);
+      expect(flag?.rules.at(0)?.accessor === attributeName);
+    }
+  });
 });
 
 describe("Rename a flag", () => {

@@ -79,6 +79,7 @@ export class Admin {
     this.validateName(create.name);
     const now = Date.now();
     const _create = (environment: Environment): Flag => ({
+      version: "v1",
       enabled: false,
       name: create.name,
       rules: [],

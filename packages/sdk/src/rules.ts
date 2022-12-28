@@ -27,10 +27,7 @@ export const comparator = z.enum([
   "lte",
 ]);
 
-const keys = z.enum(["city", "country", "region", "ip"]);
-
 export const b = z.object({
-  version: z.string(),
   accessor: z.string(),
   compare: comparator,
   /**
@@ -42,82 +39,70 @@ export const b = z.object({
 const rules = {
   in: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("in"),
       target: z.array(z.string()),
     }),
   ),
   notIn: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("not_in"),
       target: z.array(z.string()),
     }),
   ),
   contains: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("contains"),
       target: z.string(),
     }),
   ),
   notContains: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("not_contains"),
       target: z.string(),
     }),
   ),
   eq: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("eq"),
       target: z.string(),
     }),
   ),
   notEq: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("not_eq"),
       target: z.string(),
     }),
   ),
   empty: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("empty"),
     }),
   ),
   notEmpty: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("not_empty"),
     }),
   ),
   gt: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("gt"),
       target: z.union([z.number(), z.string()]),
     }),
   ),
   gte: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("gte"),
       target: z.union([z.number(), z.string()]),
     }),
   ),
   lt: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("lt"),
       target: z.union([z.number(), z.string()]),
     }),
   ),
   lte: b.merge(
     z.object({
-      accessor: keys,
       compare: z.literal("lte"),
       target: z.union([z.number(), z.string()]),
     }),
