@@ -132,6 +132,22 @@ export default function Example() {
             ) : "-"}
           </Block>
         </Card>
+        <Card>
+          <Block truncate={true}>
+            <Text>Latency</Text>
+            {debug.latency ? (
+              <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
+                <Metric truncate={true}>
+
+                  {Intl.NumberFormat(undefined, {
+                    compactDisplay: "short",
+                  }).format(debug.latency)}
+                </Metric>
+                <Text>ms</Text>
+              </Flex>
+            ) : ""}
+          </Block>
+        </Card>
       </ColGrid>
     </main>
   );
