@@ -87,7 +87,7 @@ export default function Example() {
           </Card>
         </Block>
       ) : null}
-      <ColGrid numColsMd={2} numColsLg={2} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
+      <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
         <Card>
           <Block truncate={true}>
             <Text>Enabled</Text>
@@ -101,13 +101,13 @@ export default function Example() {
           </Block>
         </Card>
 
-        <Card>
+        {/* <Card>
           <Block truncate={true}>
             <Text>Vercel Cache</Text>
 
             <Metric truncate={true}>{debug.cache.vercel ? debug.cache.vercel : ""}</Metric>
           </Block>
-        </Card>
+        </Card> */}
         <Card>
           <Block truncate={true}>
             <Text>Memory Cache</Text>
@@ -119,12 +119,12 @@ export default function Example() {
         <Card>
           <Block truncate={true}>
             <Text>Redis Latency</Text>
-            {debug.redisLatency && debug.redisLatency >= 0 ? (
+            {debug.latency.redis && debug.latency.redis >= 0 ? (
               <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
-                  }).format(debug.redisLatency)}
+                  }).format(debug.latency.redis)}
                 </Metric>
                 <Text>ms</Text>
               </Flex>
@@ -135,13 +135,30 @@ export default function Example() {
         </Card>
         <Card>
           <Block truncate={true}>
-            <Text>Fetch Latency</Text>
-            {debug.latency ? (
+            <Text>Total Latency</Text>
+            {debug.latency.total ? (
               <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
-                  }).format(debug.latency)}
+                  }).format(debug.latency.total)}
+                </Metric>
+                <Text>ms</Text>
+              </Flex>
+            ) : (
+              ""
+            )}
+          </Block>
+        </Card>
+        <Card>
+          <Block truncate={true}>
+            <Text>Edge Latency</Text>
+            {debug.latency.edge ? (
+              <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
+                <Metric truncate={true}>
+                  {Intl.NumberFormat(undefined, {
+                    compactDisplay: "short",
+                  }).format(debug.latency.edge)}
                 </Metric>
                 <Text>ms</Text>
               </Flex>

@@ -50,6 +50,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
   const admin = new Admin({ redis, prefix: opts.prefix });
 
   return async (req: NextRequest, _event: NextFetchEvent) => {
+    const edgeStart = Date.now();
     const url = new URL(req.url);
 
     const headers = new Headers();
@@ -77,6 +78,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
     }
 
     if (!flag) {
+      headers.set("X-Edge-Latency", (Date.now() - edgeStart).toString());
       return NextResponse.json(
         { error: `Flag not found: ${flagName}` },
         {
@@ -101,6 +103,8 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
     const percentage = hashSum % 100;
 
     const value = evaluate(flag, percentage, evalRequest);
+
+    headers.set("X-Edge-Latency", (Date.now() - edgeStart).toString());
 
     /**
      * No rule applied

@@ -53,8 +53,12 @@ export type UseFlag = {
    * This can change at any time
    */
   debug: {
-    latency: number | null;
-    redisLatency: number | null;
+    latency: {
+      total: number | null;
+      edge: number | null;
+      redis: number | null;
+    };
+
     cache: {
       memory: string | null;
       vercel: string | null;
@@ -68,6 +72,7 @@ export function useFlag(flag: string, attributes?: Record<string, string>): UseF
   const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
   const [latency, setLatency] = useState<number | null>(null);
   const [redisLatency, setRedisLatency] = useState<number | null>(null);
+  const [edgeLatency, setEdgeLatency] = useState<number | null>(null);
   const [memoryCacheHit, setMemoryCacheHit] = useState<string | null>(null);
   const [vercelCacheHit, setVercelCacheHit] = useState<string | null>(null);
 
@@ -99,6 +104,7 @@ export function useFlag(flag: string, attributes?: Record<string, string>): UseF
       setVercelCacheHit(res.headers.get("X-Vercel-Cache"));
       setMemoryCacheHit(res.headers.get("X-Edge-Flags-Cache"));
       setRedisLatency(parseInt(res.headers.get("X-Redis-Latency") ?? "-1"));
+      setEdgeLatency(parseInt(res.headers.get("X-Edge-Latency") ?? "-1"));
       setIsEnabled(json.value);
     } catch (err) {
       if (err instanceof Error) {
@@ -122,12 +128,15 @@ export function useFlag(flag: string, attributes?: Record<string, string>): UseF
     isEnabled,
     refresh: getFlag,
     debug: {
-      latency,
+      latency: {
+        total: latency,
+        edge: edgeLatency,
+        redis: redisLatency,
+      },
       cache: {
         vercel: vercelCacheHit,
         memory: memoryCacheHit,
       },
-      redisLatency,
     },
   };
 }
