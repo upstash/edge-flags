@@ -134,7 +134,7 @@ export default function Example() {
         </Card>
         <Card>
           <Block truncate={true}>
-            <Text>Latency</Text>
+            <Text>Fetch Latency</Text>
             {debug.latency ? (
               <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
                 <Metric truncate={true}>
