@@ -4,7 +4,7 @@ import { NextFetchEvent, NextMiddleware, NextRequest, NextResponse } from "next/
 import { Admin } from "./admin";
 import { evaluate } from "./evaluation";
 import { EvalRequest } from "./rules";
-import { Environment } from "./types";
+import { Environment, Flag } from "./types";
 
 export type HandlerConfig = (
   | {
@@ -36,30 +36,42 @@ export type HandlerConfig = (
  * createHandler should be default exported by the user in an edge compatible api route
  */
 export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
-  const headers = new Headers();
-  if (opts.cacheMaxAge && opts.cacheMaxAge > 0) {
-    headers.set("Cache-Control", `s-maxage=${opts.cacheMaxAge}, public`);
-  }
+  const cache = new Map<string, Flag>();
+  const redis =
+    opts.redisUrl && opts.redisToken
+      ? new Redis({
+          url: opts.redisUrl,
+          token: opts.redisToken,
+        })
+      : Redis.fromEnv();
+  const admin = new Admin({ redis, prefix: opts.prefix });
 
   return async (req: NextRequest, _event: NextFetchEvent) => {
     const url = new URL(req.url);
 
-    const flagName = url.searchParams.get("flag");
+    const headers = new Headers();
+
+    let flagName = url.searchParams.get("_flag");
     if (!flagName) {
-      return new NextResponse("Missing parameter: flag", { status: 400 });
+      return new NextResponse("Missing parameter: _flag", { status: 400 });
     }
+    flagName = decodeURIComponent(flagName);
     console.log("Evaluating flag", flagName);
 
-    const redis =
-      opts.redisUrl && opts.redisToken
-        ? new Redis({
-            url: opts.redisUrl,
-            token: opts.redisToken,
-          })
-        : Redis.fromEnv();
+    let flag = cache.get(flagName);
+    if (flag) {
+      headers.set("X-Edge-Flags-Cache", "hit");
+    } else {
+      headers.set("X-Edge-Flags-Cache", "miss");
+      const redisStart = Date.now();
+      const loaded = await admin.getFlag(flagName, (process.env.VERCEL_ENV as Environment) ?? "production");
+      headers.set("X-Redis-Latency", (Date.now() - redisStart).toString());
+      if (loaded) {
+        flag = loaded;
+        cache.set(flagName, loaded);
+      }
+    }
 
-    const admin = new Admin({ redis, prefix: opts.prefix });
-    const flag = await admin.getFlag(flagName, (process.env.VERCEL_ENV as Environment) ?? "production");
     if (!flag) {
       return NextResponse.json(
         { error: `Flag not found: ${flagName}` },
@@ -70,10 +82,10 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
       );
     }
 
-    const evalRequest: EvalRequest = {};
+    const evalRequest: EvalRequest = req.geo ?? {};
 
     url.searchParams.forEach((value, key) => {
-      evalRequest[key] = value;
+      evalRequest[decodeURIComponent(key)] = decodeURIComponent(value);
     });
 
     const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(evalRequest)));
@@ -93,7 +105,6 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
       { value },
       {
         status: 200,
-        headers,
       },
     );
   };

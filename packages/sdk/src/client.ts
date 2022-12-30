@@ -54,31 +54,38 @@ export type UseFlag = {
    */
   debug: {
     latency: number | null;
+    redisLatency: number | null;
     cache: {
-      hit: string | null;
+      memory: string | null;
+      vercel: string | null;
     };
   };
 };
 
-export function useFlag(flagName: string, attributes?: Record<string, string>): UseFlag {
+export function useFlag(flag: string, attributes?: Record<string, string>): UseFlag {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
   const [latency, setLatency] = useState<number | null>(null);
-  const [cacheHit, setCacheHit] = useState<string | null>(null);
+  const [redisLatency, setRedisLatency] = useState<number | null>(null);
+  const [memoryCacheHit, setMemoryCacheHit] = useState<string | null>(null);
+  const [vercelCacheHit, setVercelCacheHit] = useState<string | null>(null);
 
   const getFlag = async () => {
     setError(null);
+    setMemoryCacheHit(null);
+    setVercelCacheHit(null);
 
     const now = Date.now();
     try {
       setIsLoading(true);
       const params = new URLSearchParams();
 
-      params.set("flag", flagName);
+      attributes ??= {};
+      attributes["_flag"] = flag;
       if (attributes) {
         for (const [k, v] of Object.entries(attributes)) {
-          params.set(k, v);
+          params.set(encodeURIComponent(k), encodeURIComponent(v));
         }
       }
       const res = await fetch(`/api/edge-flags?${params.toString()}`);
@@ -89,7 +96,9 @@ export function useFlag(flagName: string, attributes?: Record<string, string>): 
       console.log(res.headers);
       const json = (await res.json()) as { value: boolean };
       console.log({ json });
-      setCacheHit(res.headers.get("X-Vercel-Cache"));
+      setVercelCacheHit(res.headers.get("X-Vercel-Cache"));
+      setMemoryCacheHit(res.headers.get("X-Edge-Flags-Cache"));
+      setRedisLatency(parseInt(res.headers.get("X-Redis-Latency") ?? "-1"));
       setIsEnabled(json.value);
     } catch (err) {
       if (err instanceof Error) {
@@ -105,13 +114,13 @@ export function useFlag(flagName: string, attributes?: Record<string, string>): 
 
   useEffect(() => {
     getFlag();
-  }, [flagName]);
+  }, [flag, attributes]);
 
   return {
     isLoading,
     error,
     isEnabled,
     refresh: getFlag,
-    debug: { latency, cache: { hit: cacheHit } },
+    debug: { latency, cache: { vercel: vercelCacheHit, memory: memoryCacheHit }, redisLatency },
   };
 }

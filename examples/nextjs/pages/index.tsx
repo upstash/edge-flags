@@ -103,21 +103,28 @@ export default function Example() {
 
         <Card>
           <Block truncate={true}>
-            <Text>Cache</Text>
+            <Text>Vercel Cache</Text>
 
-            <Metric truncate={true}>{debug.cache.hit ? debug.cache.hit : ""}</Metric>
+            <Metric truncate={true}>{debug.cache.vercel ? debug.cache.vercel : ""}</Metric>
+          </Block>
+        </Card>
+        <Card>
+          <Block truncate={true}>
+            <Text>Memory Cache</Text>
+
+            <Metric truncate={true}>{debug.cache.memory ? debug.cache.memory : ""}</Metric>
           </Block>
         </Card>
 
         <Card>
           <Block truncate={true}>
-            <Text>Latency</Text>
-            {debug.latency ? (
+            <Text>Redis Latency</Text>
+            {debug.redislatency ? (
               <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
-                  }).format(debug.latency)}
+                  }).format(debug.redisLatency)}
                 </Metric>
                 <Text>ms</Text>
               </Flex>
