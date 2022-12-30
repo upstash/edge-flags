@@ -1,13 +1,13 @@
 export class Cache<T> {
   private readonly maxAge?: number;
-  private map: Map<string, { expires?: number; value: T }>;
+  private map: Map<string, { createdAt: number; value: T }>;
   constructor(maxAge?: number) {
     this.maxAge = maxAge && maxAge > 0 ? maxAge : undefined;
     this.map = new Map();
   }
   set(key: string, value: T) {
     this.map.set(key, {
-      expires: this.maxAge ? Date.now() + this.maxAge : undefined,
+      createdAt: Date.now(),
       value,
     });
   }
@@ -17,7 +17,7 @@ export class Cache<T> {
     if (!item) {
       return null;
     }
-    if (item.expires && item.expires < Date.now()) {
+    if (this.maxAge && item.createdAt + this.maxAge > Date.now()) {
       this.map.delete(key);
       return null;
     }
