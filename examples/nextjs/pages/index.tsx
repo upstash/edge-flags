@@ -112,7 +112,7 @@ export default function Example() {
           <Block truncate={true}>
             <Text>Memory Cache</Text>
 
-            <Metric truncate={true}>{debug.cache.memory ? debug.cache.memory : ""}</Metric>
+            <Metric truncate={true}>{debug.cache.memory ? debug.cache.memory.toUpperCase() : ""}</Metric>
           </Block>
         </Card>
 
