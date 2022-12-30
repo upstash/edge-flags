@@ -87,7 +87,7 @@ export default function Example() {
           </Card>
         </Block>
       ) : null}
-      <ColGrid numColsMd={2} numColsLg={4} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
+      <ColGrid numColsMd={2} numColsLg={2} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
         <Card>
           <Block truncate={true}>
             <Text>Enabled</Text>
