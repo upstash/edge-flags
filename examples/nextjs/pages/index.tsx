@@ -26,8 +26,8 @@ export default function Example() {
     flag,
     attribute
       ? {
-        [attribute.name]: attribute.value,
-      }
+          [attribute.name]: attribute.value,
+        }
       : undefined,
   );
 
@@ -122,14 +122,15 @@ export default function Example() {
             {debug.redisLatency && debug.redisLatency >= 0 ? (
               <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
                 <Metric truncate={true}>
-
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
                   }).format(debug.redisLatency)}
                 </Metric>
                 <Text>ms</Text>
               </Flex>
-            ) : "-"}
+            ) : (
+              "-"
+            )}
           </Block>
         </Card>
         <Card>
@@ -138,14 +139,15 @@ export default function Example() {
             {debug.latency ? (
               <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
                 <Metric truncate={true}>
-
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
                   }).format(debug.latency)}
                 </Metric>
                 <Text>ms</Text>
               </Flex>
-            ) : ""}
+            ) : (
+              ""
+            )}
           </Block>
         </Card>
       </ColGrid>

@@ -5,6 +5,7 @@ import { Admin } from "./admin";
 import { evaluate } from "./evaluation";
 import { EvalRequest } from "./rules";
 import { Environment, Flag } from "./types";
+import { Cache } from "./cache";
 
 export type HandlerConfig = (
   | {
@@ -16,7 +17,16 @@ export type HandlerConfig = (
       redisToken?: never;
     }
 ) & {
-
+  /**
+   * Max age of the cache in seconds
+   *
+   * This is the max age of the in memory cache, not the redis cache
+   *
+   * Edge functions are not guaranteed to be warm, so the cache can be empty at any time.
+   *
+   * 0, negative or undefined will disable the cache
+   */
+  maxAge?: number;
   /**
    * Prefix all keys in redis
    *
@@ -29,7 +39,7 @@ export type HandlerConfig = (
  * createHandler should be default exported by the user in an edge compatible api route
  */
 export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
-  const cache = new Map<string, Flag>();
+  const cache = new Cache<Flag>(opts.maxAge);
   const redis =
     opts.redisUrl && opts.redisToken
       ? new Redis({
@@ -52,7 +62,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
     console.log("Evaluating flag", flagName);
 
     let flag = cache.get(flagName);
-    console.log("cached", flag)
+    console.log("cached", flag);
     if (flag) {
       headers.set("X-Edge-Flags-Cache", "hit");
     } else {
@@ -99,7 +109,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
       { value },
       {
         status: 200,
-        headers
+        headers,
       },
     );
   };
