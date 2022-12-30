@@ -26,8 +26,8 @@ export default function Example() {
     flag,
     attribute
       ? {
-          [attribute.name]: attribute.value,
-        }
+        [attribute.name]: attribute.value,
+      }
       : undefined,
   );
 
@@ -133,15 +133,16 @@ export default function Example() {
             )}
           </Block>
         </Card>
+
         <Card>
           <Block truncate={true}>
-            <Text>Total Latency</Text>
-            {debug.latency.total ? (
+            <Text>Edge Latency</Text>
+            {typeof debug.latency.edge === "number" ? (
               <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
-                  }).format(debug.latency.total)}
+                  }).format(debug.latency.edge)}
                 </Metric>
                 <Text>ms</Text>
               </Flex>
@@ -152,13 +153,13 @@ export default function Example() {
         </Card>
         <Card>
           <Block truncate={true}>
-            <Text>Edge Latency</Text>
-            {debug.latency.edge ? (
+            <Text>Total Latency</Text>
+            {debug.latency.total ? (
               <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
-                  }).format(debug.latency.edge)}
+                  }).format(debug.latency.total)}
                 </Metric>
                 <Text>ms</Text>
               </Flex>
