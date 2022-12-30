@@ -59,6 +59,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
     console.log("Evaluating flag", flagName);
 
     let flag = cache.get(flagName);
+    console.log("cached", flag)
     if (flag) {
       headers.set("X-Edge-Flags-Cache", "hit");
     } else {
