@@ -105,6 +105,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
       { value },
       {
         status: 200,
+        headers
       },
     );
   };
