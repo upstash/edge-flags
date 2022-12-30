@@ -2,7 +2,6 @@
 import { createEdgeHandler } from "@upstash/edge-flags";
 
 export default createEdgeHandler({
-  cacheMaxAge: 10,
   redisUrl: process.env.UPSTASH_REDIS_REST_URL!,
   redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });

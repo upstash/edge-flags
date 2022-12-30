@@ -16,13 +16,6 @@ export type HandlerConfig = (
       redisToken?: never;
     }
 ) & {
-  /**
-   * How long to cache the result
-   * in seconds
-   *
-   * Set to 0 to disable caching
-   */
-  cacheMaxAge: number;
 
   /**
    * Prefix all keys in redis

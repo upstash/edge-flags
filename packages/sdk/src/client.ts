@@ -112,9 +112,9 @@ export function useFlag(flag: string, attributes?: Record<string, string>): UseF
     }
   };
 
-  useEffect(() => {
-    getFlag();
-  }, [flag, attributes]);
+  // useEffect(() => {
+  //   getFlag();
+  // }, [flag, attributes]);
 
   return {
     isLoading,
