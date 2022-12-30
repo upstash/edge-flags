@@ -121,6 +121,13 @@ export function useFlag(flag: string, attributes?: Record<string, string>): UseF
     error,
     isEnabled,
     refresh: getFlag,
-    debug: { latency, cache: { vercel: vercelCacheHit, memory: memoryCacheHit }, redisLatency },
+    debug: {
+      latency,
+      cache: {
+        vercel: vercelCacheHit,
+        memory: memoryCacheHit,
+      },
+      redisLatency,
+    },
   };
 }

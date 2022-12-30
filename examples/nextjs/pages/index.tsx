@@ -119,7 +119,7 @@ export default function Example() {
         <Card>
           <Block truncate={true}>
             <Text>Redis Latency</Text>
-            {debug.redislatency ? (
+            {debug.redisLatency ? (
               <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
