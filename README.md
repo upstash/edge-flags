@@ -63,7 +63,7 @@ npm install @upstash/edge-flags
 import { createEdgeHandler } from "@upstash/edge-flags";
 
 export default createEdgeHandler({
-  cacheMaxAge: 0, // cache time in seconds, 0 disabled the cache
+  cacheMaxAge: 0, // cache time in seconds, 0 disables the cache
   redisUrl: process.env.UPSTASH_REDIS_REST_URL!, // omit to load from env automatically
   redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!, // omit to load from env automatically
 });
