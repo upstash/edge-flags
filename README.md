@@ -1,6 +1,6 @@
 <div align="center">
     <h1 align="center">Edge Flags</h1>
-    <h5>Low latency feature flags at the edge</h5>
+    <h5>Feature Flags for the Edge</h5>
 </div>
 
 <div align="center">
@@ -8,33 +8,43 @@
 </div>
 <br/>
 
-TODO: Add description
+![Arch](img/flag.png)
 
-## Powered by
 
-- [Upstash Global Redis Database](https://docs.upstash.com/redis/features/globaldatabase)
-- [Next.js](https://nextjs.org)
-- [Vercel](https://vercel.com)
+Edge Flags is a low latency feature flagging solution running at the edge and storing data in a global Redis database. It is designed to be used with [Next.js](https://nextjs.org) and [Vercel](https://vercel.com) but we will soon roll out support for other popular frameworks and platforms.
+
+
+## Features
+
+- **Low latency:** Flags are evaluated at the edge and cached for a short period of time.
+- **Global:** Flags are stored in a global Redis database and can be accessed from anywhere with low latency.
+- **Environments:** Each flag exists in multiple environments and can be managed independently.
+- **Flexible:** Flags can be evaluated based on geo location and custom attributes 
+- **Easy to use:** Flags can be created and managed on [console.upstash.com/edge-flags](https://console.upstash.com/edge-flags).
+- **Free:** Edge Flags is free to use. You only pay for the Redis database.
+- **Cache:** Flags can be cached for a short period of time to reduce the required requests to redis, making it cheaper to use.
 
 <br/>
+
+## Architecture
 
 ![Arch](img/simple.png)
 
 ## Quickstart
 
-0. Go to
+1. Go to
    [console.upstash.com/edge-flags](https://console.upstash.com/edge-flags) and
    create a flag.
 
-   See [docs](https://docs.upstash.com/redis/sdks/edge-flags/overview) for more information.
+   See our [docs](https://docs.upstash.com/redis/sdks/edge-flags/overview) for more information.
 
-1. Install `@upstash/edge-flags` in your project
+2. Install `@upstash/edge-flags` in your project
 
 ```bash
 npm install @upstash/edge-flags
 ```
 
-2. Create an edge function in your project
+3. Create an edge function in your project
 
 ```ts
 // /api/edge-flags.ts
@@ -47,24 +57,26 @@ export default createEdgeHandler({
 });
 
 /**
- * Edge flags only works on edge functions, it will break if you do not set the runtime
+ * Edge flags only works in edge functions, it will break if you do not set the runtime
  */
 export const config = {
   runtime: "experimental-edge",
 };
 ```
-34. Query the flag in your frontend
+4. Query the flag in your frontend
 
 ```tsx
 // /app/index.tsx
 import { useFlag } from "@upstash/edge-flags";
+export default function Example() {
 
-const { isEnabled, isLoading, error } = useFlag("flag-name");
-
-if (error) return <div>Error: {error}</div>;
-if (isLoading) return <div>Loading...</div>;
-
-return <div>Is my feature enabled: {isEnabled}</div>;
+  const { isEnabled, isLoading, error } = useFlag("flag-name");
+  
+  if (error) return <div>Error: {error}</div>;
+  if (isLoading) return <div>Loading...</div>;
+  
+  return <div>Is my feature enabled: {isEnabled}</div>;
+}
 ```
 
 ## Custom attributes
@@ -73,7 +85,7 @@ return <div>Is my feature enabled: {isEnabled}</div>;
 to be evaluated in the flag rules.
 
 ```tsx
-const attributes: Record<string, string> = {
+const attributes = {
   userId: "chronark",
   role: "admin",
 };
