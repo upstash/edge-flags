@@ -1,20 +1,5 @@
-import {
-  Card,
-  Title,
-  Text,
-  ColGrid,
-  Col,
-  Block,
-  Metric,
-  Badge,
-  Toggle,
-  ToggleItem,
-  Flex,
-  TextInput,
-  Button,
-  Subtitle,
-} from "@tremor/react";
-import { TrashIcon, ArrowPathIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { Card, Title, Text, ColGrid, Block, Metric, Flex, TextInput, Button, Subtitle } from "@tremor/react";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useFlag } from "@upstash/edge-flags";
 import { useEffect, useState } from "react";
 
@@ -45,7 +30,7 @@ export default function Example() {
         <Block>
           <Title>@upstash/edge-flags</Title>
           <Text color="blue">
-            <a href="https://console-git-feature-flag-upstash.vercel.app/edge-flags" target="_blank" rel="noreferrer">
+            <a href="https://console.upstash.com/edge-flags?ref=edge-flags-example" target="_blank" rel="noreferrer">
               console.upstash.com/edge-flags
             </a>
           </Text>
@@ -87,7 +72,7 @@ export default function Example() {
           </Card>
         </Block>
       ) : null}
-      <ColGrid numColsMd={2} numColsLg={4} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
+      <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
         <Card>
           <Block truncate={true}>
             <Text>Enabled</Text>
@@ -101,27 +86,71 @@ export default function Example() {
           </Block>
         </Card>
 
+        {/* <Card>
+          <Block truncate={true}>
+            <Text>Vercel Cache</Text>
+
+            <Metric truncate={true}>{debug.cache.vercel ? debug.cache.vercel : ""}</Metric>
+          </Block>
+        </Card> */}
         <Card>
           <Block truncate={true}>
-            <Text>Cache</Text>
+            <Text>Memory Cache</Text>
 
-            <Metric truncate={true}>{debug.cache.hit ? debug.cache.hit : ""}</Metric>
+            <Metric truncate={true}>{debug.cache.memory ? debug.cache.memory.toUpperCase() : ""}</Metric>
           </Block>
         </Card>
 
         <Card>
           <Block truncate={true}>
-            <Text>Latency</Text>
-            {debug.latency ? (
+            <Text>Redis Latency</Text>
+            {debug.latency.redis && debug.latency.redis >= 0 ? (
               <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
-                  }).format(debug.latency)}
+                  }).format(debug.latency.redis)}
                 </Metric>
                 <Text>ms</Text>
               </Flex>
-            ) : null}
+            ) : (
+              "-"
+            )}
+          </Block>
+        </Card>
+
+        <Card>
+          <Block truncate={true}>
+            <Text>Edge Latency</Text>
+            {typeof debug.latency.edge === "number" ? (
+              <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
+                <Metric truncate={true}>
+                  {Intl.NumberFormat(undefined, {
+                    compactDisplay: "short",
+                  }).format(debug.latency.edge)}
+                </Metric>
+                <Text>ms</Text>
+              </Flex>
+            ) : (
+              ""
+            )}
+          </Block>
+        </Card>
+        <Card>
+          <Block truncate={true}>
+            <Text>Total Latency</Text>
+            {debug.latency.total ? (
+              <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
+                <Metric truncate={true}>
+                  {Intl.NumberFormat(undefined, {
+                    compactDisplay: "short",
+                  }).format(debug.latency.total)}
+                </Metric>
+                <Text>ms</Text>
+              </Flex>
+            ) : (
+              ""
+            )}
           </Block>
         </Card>
       </ColGrid>

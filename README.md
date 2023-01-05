@@ -18,13 +18,15 @@ TODO: Add description
 
 <br/>
 
-![Arch](img/arch.png)
+![Arch](img/simple.png)
 
 ## Quickstart
 
 0. Go to
    [console.upstash.com/edge-flags](https://console.upstash.com/edge-flags) and
-   create a flag TODO: Add screenshot
+   create a flag.
+
+   See [docs](https://docs.upstash.com/redis/sdks/edge-flags/overview) for more information.
 
 1. Install `@upstash/edge-flags` in your project
 
@@ -51,26 +53,7 @@ export const config = {
   runtime: "experimental-edge",
 };
 ```
-
-3. Add middleware
-
-```ts
-// /middleware.ts
-import { NextRequest, NextResponse } from "next/server";
-import { edgeFlagsMiddleware } from "@upstash/edge-flags";
-
-export async function middleware(req: NextRequest) {
-  const url = new URL(req.url);
-
-  if (url.pathname === "/api/edge-flags") {
-    return await edgeFlagsMiddleware(req, { userId: req.ip ?? "unknown" });
-  }
-
-  return NextResponse.next();
-}
-```
-
-4. Query the flag in your frontend
+34. Query the flag in your frontend
 
 ```tsx
 // /app/index.tsx
@@ -98,6 +81,7 @@ const attributes: Record<string, string> = {
 useFlag("flag-name", attributes);
 ```
 
+
 ## Development
 
 This monorepo is managed by turborepo and uses `pnpm` for dependency management.
@@ -113,6 +97,7 @@ pnpm install
 ```bash
 pnpm build
 ```
+
 
 ## Database Schema
 

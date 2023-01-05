@@ -10,7 +10,6 @@
     "release": "pnpm fmt && pnpm build && pnpx changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.25.2",
     "rome": "^11.0.0",
     "turbo": "^1.6.3"
   },
