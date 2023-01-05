@@ -25,25 +25,38 @@ Edge Flags is a low latency feature flagging solution running at the edge and st
 
 <br/>
 
+
+## Docs
+
+This readme provides a quickstart guide. For more information, see our [docs](https://docs.upstash.com/redis/sdks/edge-flags/overview).
+
 ## Architecture
 
 ![Arch](img/simple.png)
 
 ## Quickstart
 
-1. Go to
+
+1. Create a redis database
+
+Go to [console.upstash.com/redis](https://console.upstash.com/redis) and create
+a new global database.
+
+After creating the db, copy the `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` to your `.env` file.
+
+2. Go to
    [console.upstash.com/edge-flags](https://console.upstash.com/edge-flags) and
    create a flag.
 
    See our [docs](https://docs.upstash.com/redis/sdks/edge-flags/overview) for more information.
 
-2. Install `@upstash/edge-flags` in your project
+3. Install `@upstash/edge-flags` in your project
 
 ```bash
 npm install @upstash/edge-flags
 ```
 
-3. Create an edge function in your project
+4. Create an edge function in your project
 
 ```ts
 // /api/edge-flags.ts
@@ -91,6 +104,7 @@ const attributes = {
 
 useFlag("flag-name", attributes);
 ```
+
 
 
 ## Development
