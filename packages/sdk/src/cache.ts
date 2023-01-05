@@ -1,8 +1,11 @@
+/**
+ * A simple cache implementation with ttl support
+ */
 export class Cache<T> {
-  private readonly maxAge?: number;
+  private readonly ttl?: number;
   private map: Map<string, { createdAt: number; value: T }>;
-  constructor(maxAge?: number) {
-    this.maxAge = maxAge && maxAge > 0 ? maxAge : undefined;
+  constructor(ttl?: number) {
+    this.ttl = ttl && ttl > 0 ? ttl : undefined;
     this.map = new Map();
   }
   set(key: string, value: T) {
@@ -17,7 +20,7 @@ export class Cache<T> {
     if (!item) {
       return null;
     }
-    if (this.maxAge && item.createdAt + this.maxAge > Date.now()) {
+    if (this.ttl && item.createdAt + this.ttl > Date.now()) {
       this.map.delete(key);
       return null;
     }

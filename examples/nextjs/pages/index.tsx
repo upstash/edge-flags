@@ -1,20 +1,5 @@
-import {
-  Card,
-  Title,
-  Text,
-  ColGrid,
-  Col,
-  Block,
-  Metric,
-  Badge,
-  Toggle,
-  ToggleItem,
-  Flex,
-  TextInput,
-  Button,
-  Subtitle,
-} from "@tremor/react";
-import { TrashIcon, ArrowPathIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { Card, Title, Text, ColGrid, Block, Metric, Flex, TextInput, Button, Subtitle } from "@tremor/react";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useFlag } from "@upstash/edge-flags";
 import { useEffect, useState } from "react";
 
@@ -26,8 +11,8 @@ export default function Example() {
     flag,
     attribute
       ? {
-        [attribute.name]: attribute.value,
-      }
+          [attribute.name]: attribute.value,
+        }
       : undefined,
   );
 
@@ -45,7 +30,7 @@ export default function Example() {
         <Block>
           <Title>@upstash/edge-flags</Title>
           <Text color="blue">
-            <a href="https://console-git-feature-flag-upstash.vercel.app/edge-flags" target="_blank" rel="noreferrer">
+            <a href="https://console.upstash.com/edge-flags?ref=edge-flags-example" target="_blank" rel="noreferrer">
               console.upstash.com/edge-flags
             </a>
           </Text>

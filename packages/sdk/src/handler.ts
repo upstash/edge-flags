@@ -18,6 +18,11 @@ export type HandlerConfig = (
     }
 ) & {
   /**
+   * Override the environment to use.
+   * By default we use the VERCEL_ENV environment variable
+   */
+  environment?: Environment;
+  /**
    * Max age of the cache in seconds
    *
    * This is the max age of the in memory cache, not the redis cache
@@ -69,7 +74,10 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
     } else {
       headers.set("X-Edge-Flags-Cache", "miss");
       const redisStart = Date.now();
-      const loaded = await admin.getFlag(flagName, (process.env.VERCEL_ENV as Environment) ?? "production");
+      const loaded = await admin.getFlag(
+        flagName,
+        opts.environment ?? (process.env.VERCEL_ENV as Environment) ?? "production",
+      );
       headers.set("X-Redis-Latency", (Date.now() - redisStart).toString());
       if (loaded) {
         flag = loaded;
