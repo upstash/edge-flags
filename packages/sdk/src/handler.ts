@@ -18,6 +18,10 @@ export type HandlerConfig = (
     }
 ) & {
   /**
+   * Enable debug logging
+   */
+  debug?: boolean;
+  /**
    * Override the environment to use.
    * By default we use the VERCEL_ENV environment variable
    */
@@ -60,15 +64,14 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
 
     const headers = new Headers();
 
-    let flagName = url.searchParams.get("_flag");
+    const flagName = url.searchParams.get("_flag");
     if (!flagName) {
       return new NextResponse("Missing parameter: _flag", { status: 400 });
     }
-    flagName = decodeURIComponent(flagName);
-    console.log("Evaluating flag", flagName);
 
     let flag = cache.get(flagName);
-    console.log("cached", flag);
+    if (opts.debug) console.log("cached", flag);
+
     if (flag) {
       headers.set("X-Edge-Flags-Cache", "hit");
     } else {
@@ -110,7 +113,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
 
     const percentage = hashSum % 100;
 
-    const value = evaluate(flag, percentage, evalRequest);
+    const value = evaluate(flag, percentage, evalRequest, opts.debug);
 
     headers.set("X-Edge-Latency", (Date.now() - edgeStart).toString());
 

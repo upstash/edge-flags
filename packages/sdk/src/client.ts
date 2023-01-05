@@ -1,6 +1,4 @@
-import { URLSearchParams } from "next/dist/compiled/@edge-runtime/primitives/url";
-import { setLazyProp } from "next/dist/server/api-utils";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export type EdgeFlagsConfig = {
   /**
@@ -90,7 +88,7 @@ export function useFlag(flag: string, attributes?: Record<string, string>): UseF
       attributes["_flag"] = flag;
       if (attributes) {
         for (const [k, v] of Object.entries(attributes)) {
-          params.set(encodeURIComponent(k), encodeURIComponent(v));
+          params.set(k, v);
         }
       }
       const res = await fetch(`/api/edge-flags?${params.toString()}`);
