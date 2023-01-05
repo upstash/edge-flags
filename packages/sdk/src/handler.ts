@@ -76,7 +76,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
       const redisStart = Date.now();
       const loaded = await admin.getFlag(
         flagName,
-        opts.environment ?? (process.env.VERCEL_ENV as Environment) ?? "production",
+        opts.environment ?? (process.env.VERCEL_ENV as Environment) ?? "development",
       );
       headers.set("X-Redis-Latency", (Date.now() - redisStart).toString());
       if (loaded) {
