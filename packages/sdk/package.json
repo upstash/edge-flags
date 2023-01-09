@@ -23,7 +23,7 @@
   "author": "Andreas Thomas <andreas@upstash.com>",
   "scripts": {
     "build": "tsup",
-    "test": "jest"
+    "test": "jest --collect-coverage"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",

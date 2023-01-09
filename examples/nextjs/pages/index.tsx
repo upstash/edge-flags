@@ -132,7 +132,7 @@ export default function Example() {
                 <Text>ms</Text>
               </Flex>
             ) : (
-              ""
+              "-"
             )}
           </Block>
         </Card>
@@ -149,7 +149,7 @@ export default function Example() {
                 <Text>ms</Text>
               </Flex>
             ) : (
-              ""
+              "-"
             )}
           </Block>
         </Card>

@@ -14,10 +14,9 @@ export function evaluate(flag: Flag, userPercentage: number, req: EvalRequest, d
   if (debug) console.log(JSON.stringify({ evalRequest: req.eval }, null, 2));
 
   for (const rule of flag.rules) {
-    const hit = new Rule(rule).evaluate(req);
-    if (debug) {
-      console.log("evaluating rule", rule, { hit });
-    }
+    const hit = new Rule(rule).match(req);
+    if (debug) console.log("matching rule", rule, { hit });
+
     if (hit) {
       if (debug) console.log("Returning", rule.value);
 

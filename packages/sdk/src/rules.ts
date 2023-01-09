@@ -131,44 +131,55 @@ export class Rule {
     this.schema = schema;
   }
 
-  static parse(raw: unknown): Rule {
-    return new Rule(rule.parse(raw));
+  static parse(raw: string): Rule {
+    return new Rule(rule.parse(JSON.parse(raw)));
   }
   toString(): string {
     return JSON.stringify(this.schema);
   }
 
-  public evaluate(req: EvalRequest): boolean {
+  public match(req: EvalRequest): boolean {
     const value = req[this.schema.accessor];
-    console.log("Evaluating", JSON.stringify({ accessor: this.schema.accessor, value, req }, null, 2));
-    if (typeof value === "undefined") {
-      return false;
-    }
+
     switch (this.schema.compare) {
       case "in":
+        if (typeof value === "undefined") {
+          return false;
+        }
         return this.schema.target.includes(value);
       case "not_in":
+        if (typeof value === "undefined") {
+          // if the value is not defined, then by definition no target is a member
+          return true;
+        }
         return !this.schema.target.includes(value);
       case "contains":
+        if (typeof value === "undefined") {
+          return false;
+        }
         return value.includes(this.schema.target);
       case "not_contains":
+        if (typeof value === "undefined") {
+          // if the value is not defined, then by definition it does not include the target
+          return true;
+        }
         return !value.includes(this.schema.target);
       case "empty":
-        return value === "";
+        return !value;
       case "not_empty":
-        return value !== "";
+        return !!value;
       case "eq":
         return value === this.schema.target;
       case "not_eq":
         return value !== this.schema.target;
       case "gt":
-        return value > this.schema.target;
+        return typeof value !== "undefined" && value > this.schema.target;
       case "gte":
-        return value >= this.schema.target;
+        return typeof value !== "undefined" && value >= this.schema.target;
       case "lt":
-        return value < this.schema.target;
+        return typeof value !== "undefined" && value < this.schema.target;
       case "lte":
-        return value <= this.schema.target;
+        return typeof value !== "undefined" && value <= this.schema.target;
     }
   }
 }
