@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "rome": "^11.0.0",
-    "turbo": "^1.6.3"
+    "turbo": "^1.7.0"
   },
   "engines": {
     "node": ">=16.0.0"
