@@ -6,6 +6,7 @@ import { evaluate } from "./evaluation";
 import { EvalRequest } from "./rules";
 import { Environment, Flag } from "./types";
 import { Cache } from "./cache";
+import { VERSION } from "./version";
 
 export type HandlerConfig = (
   | {
@@ -56,6 +57,12 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
           token: opts.redisToken,
         })
       : Redis.fromEnv();
+  try {
+    // @ts-ignore - this may not be available in older versions of @upstash/redis
+    redis.addTelemetry({ sdk: `@upstash/edge-flags@${VERSION}` });
+  } catch {
+    // ignore
+  }
   const admin = new Admin({ redis, prefix: opts.prefix });
 
   return async (req: NextRequest, _event: NextFetchEvent) => {

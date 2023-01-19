@@ -20,7 +20,7 @@ jobs:
           node-version: 18
 
       - name: Set version
-        run: node cmd/set-version.js packages/sdk/package.json ${GITHUB_REF#refs/*/}
+        run: node cmd/set-version.js packages/sdk ${GITHUB_REF#refs/*/}
 
       - name: Install pnpm
         run: npm install -g pnpm
