@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export type UseFlag = {
   isLoading: boolean;
@@ -74,9 +74,9 @@ export function useFlag(flag: string, attributes?: Record<string, string | numbe
     }
   };
 
-  // useEffect(() => {
-  //   getFlag();
-  // }, [flag, attributes]);
+  useEffect(() => {
+    getFlag();
+  }, [flag, attributes]);
 
   return {
     isLoading,
