@@ -88,6 +88,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
         flagName,
         opts.environment ?? (process.env.VERCEL_ENV as Environment) ?? "development",
       );
+      if (opts.debug) console.log("found flag", loaded);
       headers.set("X-Redis-Latency", (Date.now() - redisStart).toString());
       if (loaded) {
         flag = loaded;
@@ -121,6 +122,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
     const percentage = hashSum % 100;
 
     const value = evaluate(flag, percentage, evalRequest, opts.debug);
+    if (opts.debug) console.log("eval", { evalRequest, percentage, value });
 
     headers.set("X-Edge-Latency", (Date.now() - edgeStart).toString());
 
