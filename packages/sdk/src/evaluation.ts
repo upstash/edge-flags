@@ -7,7 +7,8 @@ export function evaluate(flag: Flag, userPercentage: number, req: EvalRequest, d
   if (flag.percentage) {
     if (debug) console.log({ userPercentage, flagPercentage: flag.percentage });
 
-    if (userPercentage < flag.percentage) {
+    if (userPercentage > flag.percentage) {
+      if (debug) console.log("userPercentage < flag.percentage, returning false");
       return false;
     }
   }
