@@ -29,5 +29,5 @@ export function evaluate(flag: Flag, userPercentage: number, req: EvalRequest, d
    * No rule applied
    */
 
-  return false;
+  return flag.enabled;
 }
