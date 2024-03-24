@@ -20,7 +20,7 @@ export class Cache<T> {
     if (!item) {
       return null;
     }
-    if (this.ttl && item.createdAt + this.ttl > Date.now()) {
+    if (this.ttl && (item.createdAt + this.ttl) < Date.now()) {
       this.map.delete(key);
       return null;
     }
