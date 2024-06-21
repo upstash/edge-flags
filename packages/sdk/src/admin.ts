@@ -16,7 +16,13 @@ function flagKey({
   return [prefix, tenant, "flags", flagName, environment].join(":");
 }
 
-function listKey({ prefix, tenant = "default" }: { prefix: string; tenant?: string }) {
+function listKey({
+  prefix,
+  tenant = "default",
+}: {
+  prefix: string;
+  tenant?: string;
+}) {
   return [prefix, tenant, "flags"].join(":");
 }
 
@@ -41,7 +47,9 @@ export class Admin {
    * Return all flags ordered by updatedAt. The most recently updated flag will be first
    */
   public async listFlags(): Promise<Flag[]> {
-    const flagNames = await this.redis.smembers(listKey({ prefix: this.prefix, tenant: this.tenant }));
+    const flagNames = await this.redis.smembers(
+      listKey({ prefix: this.prefix, tenant: this.tenant })
+    );
     const keys = flagNames.flatMap((id) =>
       environments.map((env) =>
         flagKey({
@@ -49,8 +57,8 @@ export class Admin {
           tenant: this.tenant,
           flagName: id,
           environment: env as Environment,
-        }),
-      ),
+        })
+      )
     );
     if (keys.length === 0) {
       return [];
@@ -59,7 +67,10 @@ export class Admin {
     return flags.sort((a, b) => b.updatedAt - a.updatedAt);
   }
 
-  public async getFlag(flagName: string, environment: Environment): Promise<Flag | null> {
+  public async getFlag(
+    flagName: string,
+    environment: Environment
+  ): Promise<Flag | null> {
     this.validateName(flagName);
     return await this.redis.get(
       flagKey({
@@ -67,7 +78,7 @@ export class Admin {
         tenant: this.tenant,
         flagName,
         environment,
-      }),
+      })
     );
   }
 
@@ -75,7 +86,9 @@ export class Admin {
    * Create a new flag for each environment
    * The created flags will be disabled and have no rules.
    */
-  public async createFlag(create: { name: string }): Promise<Record<Environment, Flag>> {
+  public async createFlag(create: {
+    name: string;
+  }): Promise<Record<Environment, Flag>> {
     this.validateName(create.name);
     const now = Date.now();
     const _create = (environment: Environment): Flag => ({
@@ -103,7 +116,7 @@ export class Admin {
           tenant: this.tenant,
           flagName: flag.name,
           environment: flag.environment,
-        }),
+        })
       );
       if (exists) {
         throw new Error(`A flag with this name already exists: ${flag.name}`);
@@ -118,7 +131,7 @@ export class Admin {
         flag,
         {
           nx: true,
-        },
+        }
       );
       tx.sadd(listKey({ prefix: this.prefix, tenant: this.tenant }), flag.name);
     }
@@ -142,13 +155,17 @@ export class Admin {
     }
     const regex = /^[a-zA-Z0-9-_\.]+$/;
     if (!regex.test(name)) {
-      throw new Error(`Name must only include letters, numbers as well as ".", "_" and "-"`);
+      throw new Error(
+        `Name must only include letters, numbers as well as ".", "_" and "-"`
+      );
     }
   }
   /**
    * Rename a flag across all environments atomically
    */
   public async renameFlag(oldName: string, newName: string): Promise<void> {
+    this.validateName(newName);
+
     const tx = this.redis.multi();
     for (const environment of environments) {
       const oldKey = flagKey({
@@ -173,7 +190,7 @@ export class Admin {
         },
         {
           nx: true,
-        },
+        }
       );
       tx.sadd(listKey({ prefix: this.prefix, tenant: this.tenant }), newName);
 
@@ -195,7 +212,7 @@ export class Admin {
       enabled?: boolean;
       rules?: Rule[];
       percentage?: number | null;
-    },
+    }
   ): Promise<Flag> {
     this.validateName(flagName);
 
@@ -215,7 +232,10 @@ export class Admin {
       updatedAt: Date.now(),
       enabled: data.enabled ?? flag.enabled,
       rules: data.rules ?? flag.rules,
-      percentage: data.percentage === null || data.percentage === 0 ? null : data.percentage ?? flag.percentage,
+      percentage:
+        data.percentage === null || data.percentage === 0
+          ? null
+          : data.percentage ?? flag.percentage,
     };
     await this.redis.set(key, updated, { xx: true });
     return updated;
@@ -232,7 +252,7 @@ export class Admin {
           tenant: this.tenant,
           flagName,
           environment,
-        }),
+        })
       );
     }
     tx.srem(listKey({ prefix: this.prefix, tenant: this.tenant }), flagName);
@@ -247,6 +267,8 @@ export class Admin {
    * @param newName - give the copied flag a new name
    */
   public async copyFlag(flagName: string, newName: string): Promise<void> {
+    this.validateName(newName);
+
     const tx = this.redis.multi();
     for (const environment of environments) {
       const exists = await this.redis.exists(
@@ -255,7 +277,7 @@ export class Admin {
           tenant: this.tenant,
           flagName: newName,
           environment,
-        }),
+        })
       );
       if (exists) {
         throw new Error(`A flag with this name already exists: ${newName}`);
@@ -277,7 +299,7 @@ export class Admin {
         newFlag,
         {
           nx: true,
-        },
+        }
       );
       tx.sadd(listKey({ prefix: this.prefix, tenant: this.tenant }), newName);
     }
@@ -296,7 +318,13 @@ export class Admin {
    * @param from - The environment from where the flag will be copied
    * @param to - The environment to where the flag will be copied
    */
-  public async copyEnvironment(flagName: string, from: Environment, to: Environment): Promise<void> {
+  public async copyEnvironment(
+    flagName: string,
+    from: Environment,
+    to: Environment
+  ): Promise<void> {
+    this.validateName(flagName);
+
     const source = await this.getFlag(flagName, from);
     if (!source) {
       throw new Error("Source flag not found");
@@ -316,7 +344,7 @@ export class Admin {
       },
       {
         xx: true,
-      },
+      }
     );
     if (!copied) {
       throw new Error(`Error: flag was not copied: ${flagName}-${from}`);
