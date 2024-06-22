@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.edge-flags-percentage-slider .ant-slider-rail,
+.edge-flags-percentage-slider:hover .ant-slider-rail {
+  @apply bg-blue-100;
+}
+
+.edge-flags-percentage-slider .ant-slider-track,
+.edge-flags-percentage-slider:hover .ant-slider-track {
+  @apply bg-blue-400;
+}
+
+.edge-flags-percentage-slider .ant-slider-handle {
+  @apply border-blue-400 shadow;
+}
