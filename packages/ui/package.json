@@ -1,5 +1,5 @@
 {
-  "name": "console",
+  "name": "@upstash/edge-flags-ui",
   "version": "0.1.0",
   "private": true,
   "bin": "./bin.cjs",
