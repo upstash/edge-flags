@@ -1,7 +1,6 @@
 {
   "name": "@upstash/edge-flags-dashboard",
   "version": "0.1.0",
-  "private": true,
   "bin": "./bin.cjs",
   "files": [
     ".next",
