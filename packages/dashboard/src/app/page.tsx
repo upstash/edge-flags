@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { FlagData, useFetchFlags } from "@/api/flags"
+import { useFetchFlags } from "@/api/flags"
 import { Redis } from "@upstash/redis"
 import { Skeleton } from "antd"
 
@@ -12,10 +12,6 @@ import { FeatureFlag } from "@/components/flag"
 
 import { AddFlagForm } from "../components/add-flag"
 import { DatabaseSelector, EnvironmentType } from "../components/select-db"
-
-const FlagEntry = ({ data }: { data: FlagData }) => {
-  return <div className="rounded-lg border">{JSON.stringify(data)}</div>
-}
 
 const FlagsList = ({ environment }: { environment: EnvironmentType }) => {
   const { data: flags, isLoading } = useFetchFlags()

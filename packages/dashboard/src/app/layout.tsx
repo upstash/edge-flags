@@ -12,12 +12,6 @@ import colors from "tailwindcss/colors"
 
 const inter = Inter({ subsets: ["latin"] })
 
-// export const metadata: Metadata = {
-//   title: "Edge Flags Dashboard",
-//   description:
-//     "A dashboard where you can create and edit your upstash edge flags",
-// };
-
 export default function RootLayout({
   children,
 }: Readonly<{
