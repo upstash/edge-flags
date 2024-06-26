@@ -30,7 +30,7 @@ Options:
   process.exit(0)
 }
 
-const port = parseInt(argv.port || process.env.PORT || "3000", 10)
+const port = parseInt(argv.port || process.env.PORT || "5434", 10)
 
 const app = next({ dev: false, hostname, port })
 const handle = app.getRequestHandler()
