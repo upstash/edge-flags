@@ -1,11 +1,25 @@
-import { Card, Title, Text, ColGrid, Block, Metric, Flex, TextInput, Button, Subtitle } from "@tremor/react";
+import {
+  Card,
+  Title,
+  Text,
+  ColGrid,
+  Block,
+  Metric,
+  Flex,
+  TextInput,
+  Button,
+  Subtitle,
+} from "@tremor/react";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useFlag } from "@upstash/edge-flags";
 import { useEffect, useState } from "react";
 
 export default function Example() {
   const [flag, setFlag] = useState("my-flag");
-  const [attribute, setAttribute] = useState<{ name: string; value: string } | null>(null);
+  const [attribute, setAttribute] = useState<{
+    name: string;
+    value: string;
+  } | null>(null);
 
   const { isEnabled, isLoading, error, debug, refresh } = useFlag(
     flag,
@@ -13,7 +27,7 @@ export default function Example() {
       ? {
           [attribute.name]: attribute.value,
         }
-      : undefined,
+      : undefined
   );
 
   useEffect(() => {
@@ -44,18 +58,31 @@ export default function Example() {
         <Block>
           <Subtitle>Select your flag</Subtitle>
 
-          <TextInput value={flag} onChange={(v) => setFlag(v.currentTarget.value)} />
+          <TextInput
+            value={flag}
+            onChange={(v) => setFlag(v.currentTarget.value)}
+          />
         </Block>
         <Block marginTop="mt-6">
           <Subtitle>Add a custom attribute</Subtitle>
           <Flex spaceX="space-x-2" justifyContent="justify-center">
             <TextInput
               value={attribute?.name ?? ""}
-              onChange={(v) => setAttribute({ name: v.currentTarget.value, value: attribute?.value ?? "" })}
+              onChange={(v) =>
+                setAttribute({
+                  name: v.currentTarget.value,
+                  value: attribute?.value ?? "",
+                })
+              }
             />
             <TextInput
               value={attribute?.value ?? ""}
-              onChange={(v) => setAttribute({ name: attribute?.name ?? "", value: v.currentTarget.value })}
+              onChange={(v) =>
+                setAttribute({
+                  name: attribute?.name ?? "",
+                  value: v.currentTarget.value,
+                })
+              }
             />
           </Flex>
         </Block>
@@ -67,17 +94,27 @@ export default function Example() {
           </Card>
         </Block>
       ) : null}
-      <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
+      <ColGrid
+        numColsMd={2}
+        numColsLg={3}
+        gapX="gap-x-6"
+        gapY="gap-y-6"
+        marginTop="mt-6"
+      >
         <Card>
           <Block truncate={true}>
             <Text>Enabled</Text>
-            <Metric truncate={true}>{isEnabled?.toString().toUpperCase()}</Metric>
+            <Metric truncate={true}>
+              {isEnabled?.toString().toUpperCase()}
+            </Metric>
           </Block>
         </Card>
         <Card>
           <Block truncate={true}>
             <Text>Loading</Text>
-            <Metric truncate={true}>{isLoading.toString().toUpperCase()}</Metric>
+            <Metric truncate={true}>
+              {isLoading.toString().toUpperCase()}
+            </Metric>
           </Block>
         </Card>
 
@@ -92,7 +129,9 @@ export default function Example() {
           <Block truncate={true}>
             <Text>Memory Cache</Text>
 
-            <Metric truncate={true}>{debug.cache.memory ? debug.cache.memory.toUpperCase() : ""}</Metric>
+            <Metric truncate={true}>
+              {debug.cache.memory ? debug.cache.memory.toUpperCase() : ""}
+            </Metric>
           </Block>
         </Card>
 
@@ -100,7 +139,11 @@ export default function Example() {
           <Block truncate={true}>
             <Text>Redis Latency</Text>
             {debug.latency.redis && debug.latency.redis >= 0 ? (
-              <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
+              <Flex
+                justifyContent="justify-start"
+                alignItems="items-end"
+                spaceX="space-x-2"
+              >
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
@@ -118,7 +161,11 @@ export default function Example() {
           <Block truncate={true}>
             <Text>Edge Latency</Text>
             {typeof debug.latency.edge === "number" ? (
-              <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
+              <Flex
+                justifyContent="justify-start"
+                alignItems="items-end"
+                spaceX="space-x-2"
+              >
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
@@ -135,7 +182,11 @@ export default function Example() {
           <Block truncate={true}>
             <Text>Total Latency</Text>
             {debug.latency.total ? (
-              <Flex justifyContent="justify-start" alignItems="items-end" spaceX="space-x-2">
+              <Flex
+                justifyContent="justify-start"
+                alignItems="items-end"
+                spaceX="space-x-2"
+              >
                 <Metric truncate={true}>
                   {Intl.NumberFormat(undefined, {
                     compactDisplay: "short",
