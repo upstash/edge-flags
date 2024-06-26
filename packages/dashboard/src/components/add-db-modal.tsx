@@ -55,7 +55,7 @@ export const AddDatabaseModal = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const { addDatabase } = useDatabaseStore()
+  const { databases, addDatabase } = useDatabaseStore()
 
   const onSubmit = async (values: FormValues) => {
     await pingDb({
@@ -67,6 +67,7 @@ export const AddDatabaseModal = ({ children }: PropsWithChildren) => {
     })
 
     addDatabase(values)
+    setVisible(false)
   }
 
   return (
@@ -97,7 +98,12 @@ export const AddDatabaseModal = ({ children }: PropsWithChildren) => {
               name="url"
               rules={{
                 required: "This field is required",
-                validate: (value) => value.startsWith("https://") || "URL must start with https://",
+                validate: (value) => {
+                  if (!value.startsWith("https://")) return "URL must start with https://"
+
+                  if (databases.some((db) => db.url === value))
+                    return "A database with the same URL already exists"
+                },
               }}
               render={({ field }) => (
                 <Input

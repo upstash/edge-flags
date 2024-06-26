@@ -7,12 +7,16 @@ import { queryClient } from "./query-client"
 
 export type FlagData = Awaited<ReturnType<(typeof Admin)["prototype"]["getFlag"]>>
 
-export const useFetchFlags = () => {
+export const useFetchFlags = ({ selectedDb }: { selectedDb?: string }) => {
   const { flags } = useRedis()
 
   return useQuery({
-    queryKey: ["flags-list"],
-    queryFn: flags.listFlags.bind(flags),
+    queryKey: ["flags-list", selectedDb],
+    queryFn: async () => {
+      const list = await flags.listFlags()
+
+      return list.sort((a, b) => a.name.localeCompare(b.name))
+    },
   })
 }
 

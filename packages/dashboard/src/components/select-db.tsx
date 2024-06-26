@@ -12,13 +12,13 @@ export type EnvironmentType = "development" | "preview" | "production"
 
 export const DatabaseSelector = ({
   selectedDb,
-  onSelectDb,
+  setSelectedDb,
 
   environment,
   setEnvironment,
 }: {
   selectedDb?: string
-  onSelectDb: (id: string) => void
+  setSelectedDb: (id: string | undefined) => void
 
   environment: EnvironmentType
   setEnvironment: (env: EnvironmentType) => void
@@ -26,10 +26,16 @@ export const DatabaseSelector = ({
   const { databases, deleteDatabase } = useDatabaseStore()
 
   useEffect(() => {
-    if (!selectedDb && databases.length > 0) {
-      onSelectDb(databases[0].id)
+    const hasSelectedDb = databases.some((db) => db.id === selectedDb)
+
+    if (!hasSelectedDb && databases.length > 0) {
+      setSelectedDb(databases[0].id)
     }
-  }, [databases, onSelectDb, selectedDb])
+
+    if (databases.length === 0) {
+      setSelectedDb(undefined)
+    }
+  }, [databases, setSelectedDb, selectedDb])
 
   return (
     <div className="flex justify-between">
@@ -39,7 +45,7 @@ export const DatabaseSelector = ({
           <Select
             placeholder="Select a database"
             value={selectedDb}
-            onChange={onSelectDb}
+            onChange={setSelectedDb}
             dropdownRender={(menu) => (
               <div>
                 {menu}
