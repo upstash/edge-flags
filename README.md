@@ -22,7 +22,7 @@ Edge Flags is a low latency feature flagging solution running at the edge and st
 - **Global Low latency:** Flags are stored in a global Redis database and are evaluated at the edge.
 - **Environments:** Flags have different environments to support your deployment process: `production`, `preview` and `development`
 - **Flexible:** Flags support geo targeting, percentage based rollouts and custom attributes
-- **Manage:** Flags can be created and managed using the SDK or the self-hosted [dashboard](https://console.upstash.com/edge-flags) in this repo.
+- **Manage:** Flags can be created and managed using the SDK or the self-hosted [dashboard](https://github.com/upstash/edge-flags/tree/main/packages/dashboard) in this repo.
 - **Free:** Edge Flags is free to use. You only pay for the Redis database.
 - **Cache:** Flags can be cached for a short period of time to reduce the required requests to redis, making it cheaper to use.
 
