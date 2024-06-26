@@ -8,18 +8,30 @@ const opener = require("opener")
 // CD into the script path
 process.chdir(__dirname)
 
-const dev = process.env.NODE_ENV !== "production"
 const hostname = "localhost"
 
 const argv = require("minimist")(process.argv.slice(2), {
   alias: {
     p: "port",
+    h: "help",
   },
 })
 
+if (argv.help) {
+  console.log(
+    `
+Usage: @upstash/edge-flags-dashboard [options]
+
+Options:
+  -p, --port <port>  Port number to listen on
+  -h, --help         Show this help message
+  `.trimStart()
+  )
+  process.exit(0)
+}
+
 const port = parseInt(argv.port || process.env.PORT || "3000", 10)
 
-// when using middleware `hostname` and `port` must be provided below
 const app = next({ dev: false, hostname, port })
 const handle = app.getRequestHandler()
 
