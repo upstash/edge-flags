@@ -31,7 +31,7 @@ export const AddDatabaseModal = ({ children }: PropsWithChildren) => {
   const defaultValues = {
     url: defaultCredentials?.url ?? "",
     token: defaultCredentials?.token ?? "",
-    saveToLocalStorage: true,
+    saveToLocalStorage: false,
     tenant: "",
     prefix: "",
   }

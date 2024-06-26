@@ -5,6 +5,10 @@ const { parse } = require("url")
 const next = require("next")
 const opener = require("opener")
 
+// Read environment variables from where binary is run,
+// not from the next deployment directory
+require("dotenv").config()
+
 // CD into the script path
 process.chdir(__dirname)
 
