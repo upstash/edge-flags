@@ -29,11 +29,6 @@ export default function Example() {
       <Flex>
         <Block>
           <Title>@upstash/edge-flags</Title>
-          <Text color="blue">
-            <a href="https://console.upstash.com/edge-flags?ref=edge-flags-example" target="_blank" rel="noreferrer">
-              console.upstash.com/edge-flags
-            </a>
-          </Text>
         </Block>
         <Button
           color="emerald"
