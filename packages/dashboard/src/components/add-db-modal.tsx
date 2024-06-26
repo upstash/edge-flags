@@ -6,8 +6,8 @@ import { Redis } from "@upstash/redis"
 import { Input, Modal, Switch } from "antd"
 import { Controller, useForm } from "react-hook-form"
 
-import { InputLabel } from "@/components/input-label"
 import { useDatabaseStore } from "@/lib/database-store"
+import { InputLabel } from "@/components/input-label"
 
 type FormValues = {
   url: string
@@ -47,6 +47,7 @@ export const AddDatabaseModal = ({ children }: PropsWithChildren) => {
       redis: new Redis({
         url: values.url,
         token: values.token,
+        retry: false,
       }),
     })
 
@@ -61,6 +62,7 @@ export const AddDatabaseModal = ({ children }: PropsWithChildren) => {
         title="Add Database"
         open={visible}
         onOk={handleSubmit(onSubmit)}
+        okText={isPending ? "Pinging db..." : "Add"}
         onCancel={() => setVisible(false)}
         centered
       >
