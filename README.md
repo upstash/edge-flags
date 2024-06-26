@@ -4,7 +4,7 @@
 </div>
 
 <div align="center">
-  <a href="https://edge-flags.vercel.app/">edge-flags.vercel.app</a>
+  <a href="https://edge-flags.vercel.app">edge-flags.vercel.app</a>
 </div>
 <br/>
 
@@ -17,18 +17,16 @@
 
 Edge Flags is a low latency feature flagging solution running at the edge and storing data in a global Redis database. It is designed to be used with [Next.js](https://nextjs.org) and [Vercel](https://vercel.com) but we will soon roll out support for other popular frameworks and platforms. Let us know what you are looking for!
 
-
 ## Features
 
 - **Global Low latency:** Flags are stored in a global Redis database and are evaluated at the edge.
 - **Environments:** Flags have different environments to support your deployment process: `production`, `preview` and `development`
 - **Flexible:** Flags support geo targeting, percentage based rollouts and custom attributes
-- **Manage:** Flags can be created and managed using the SDK or our [console](https://console.upstash.com/edge-flags).
+- **Manage:** Flags can be created and managed using the SDK or the self-hosted [dashboard](https://console.upstash.com/edge-flags) in this repo.
 - **Free:** Edge Flags is free to use. You only pay for the Redis database.
 - **Cache:** Flags can be cached for a short period of time to reduce the required requests to redis, making it cheaper to use.
 
 <br/>
-
 
 ## Docs
 
@@ -40,7 +38,6 @@ This readme provides a quickstart guide. For more information, see our [docs](ht
 
 ## Quickstart
 
-
 1. Create a redis database
 
 Go to [console.upstash.com/redis](https://console.upstash.com/redis) and create
@@ -48,13 +45,17 @@ a new global database.
 
 After creating the db, copy the `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` to your `.env` file.
 
-2. Go to
-   [console.upstash.com/edge-flags](https://console.upstash.com/edge-flags) and
-   create a flag.
+2.  Run `npx @upstash/edge-flags-dashboard` in your project to open the self-hosted dashboard.
 
-   See our [docs](https://docs.upstash.com/redis/sdks/edge-flags/overview) for more information.
+```bash
+npx @upstash/edge-flags-dashboard
+```
 
-3. Install `@upstash/edge-flags` in your project
+You can also use the hosted version at https://edge-flags-dashboard.vercel.app.
+
+3.  Create a flag from the dashboard. See our [docs](https://upstash.com/docs/oss/sdks/ts/edge-flags/getstarted) for more information.
+
+4.  Install `@upstash/edge-flags` in your project
 
 ```bash
 npm install @upstash/edge-flags
@@ -79,18 +80,18 @@ export const config = {
   runtime: "experimental-edge",
 };
 ```
+
 4. Query the flag in your frontend
 
 ```tsx
 // /app/index.tsx
 import { useFlag } from "@upstash/edge-flags";
 export default function Example() {
-
   const { isEnabled, isLoading, error } = useFlag("flag-name");
-  
+
   if (error) return <div>Error: {error}</div>;
   if (isLoading) return <div>Loading...</div>;
-  
+
   return <div>Is my feature enabled: {isEnabled}</div>;
 }
 ```
@@ -109,8 +110,6 @@ const attributes = {
 useFlag("flag-name", attributes);
 ```
 
-
-
 ## Development
 
 This monorepo is managed by turborepo and uses `pnpm` for dependency management.
@@ -127,7 +126,6 @@ pnpm install
 pnpm build
 ```
 
-
 ## Database Schema
 
 All configuration is stored in Redis `String` data types. Each flag is
@@ -142,7 +140,7 @@ In addition to the flags, there will be a single set that contains all the flag 
 `SCAN` operation.
 
 ```
-SET 
+SET
 edge-flags:{TENANT}:flags
 ```
 
@@ -155,6 +153,7 @@ edge-flags:{TENANT}:flags
 ### Packages
 
 - **/packages/sdk:** The SDK to be imported into your project
+- **/packages/dashboard:** A dashboard for creating and updating your flags
 - **/examples/nextjs:** An example Next.js app using the SDK
 
 ## Authors
@@ -162,5 +161,5 @@ edge-flags:{TENANT}:flags
 This project was originally created by
 
 - [@ademilter](https://twitter.com/ademilter)
-- [@chronark_](https://twitter.com/chronark_)
+- [@chronark\_](https://twitter.com/chronark_)
 - [@enesakar](https://twitter.com/enesakar)
