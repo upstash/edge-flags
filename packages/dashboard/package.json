@@ -30,7 +30,7 @@
     "@types/react": "^18",
     "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^18",
-    "@upstash/edge-flags": "^0.1.1",
+    "@upstash/edge-flags": "workspace:*",
     "@upstash/redis": "^1.31.5",
     "antd": "^5.18.3",
     "class-variance-authority": "^0.7.0",
