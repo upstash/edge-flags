@@ -1,7 +1,8 @@
 "use client"
 
 import { PropsWithChildren, useState } from "react"
-import { useMutation } from "@tanstack/react-query"
+import { getCredentials } from "@/server/credentials"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { Redis } from "@upstash/redis"
 import { Input, Modal, Switch } from "antd"
 import { Controller, useForm } from "react-hook-form"
@@ -20,19 +21,33 @@ type FormValues = {
 export const AddDatabaseModal = ({ children }: PropsWithChildren) => {
   const [visible, setVisible] = useState(false)
 
+  const { data: defaultCredentials } = useQuery({
+    queryKey: ["default-credentials"],
+    queryFn: async () => {
+      return await getCredentials()
+    },
+  })
+
+  const defaultValues = {
+    url: defaultCredentials?.url ?? "",
+    token: defaultCredentials?.token ?? "",
+    saveToLocalStorage: true,
+    tenant: "",
+    prefix: "",
+  }
+
   const {
+    watch,
     handleSubmit,
     control,
     formState: { errors },
+    reset,
   } = useForm<FormValues>({
-    defaultValues: {
-      url: "",
-      token: "",
-      saveToLocalStorage: true,
-      tenant: "",
-      prefix: "",
-    },
+    defaultValues,
   })
+
+  const isFromDefault =
+    watch("url") === defaultCredentials?.url && watch("token") === defaultCredentials?.token
 
   const { mutateAsync: pingDb, isPending } = useMutation({
     mutationFn: async ({ redis }: { redis: Redis }) => {
@@ -56,7 +71,14 @@ export const AddDatabaseModal = ({ children }: PropsWithChildren) => {
 
   return (
     <>
-      <div onClick={() => setVisible(true)}>{children}</div>
+      <div
+        onClick={() => {
+          setVisible(true)
+          reset(defaultValues)
+        }}
+      >
+        {children}
+      </div>
       <Modal
         confirmLoading={isPending}
         title="Add Database"
@@ -105,6 +127,10 @@ export const AddDatabaseModal = ({ children }: PropsWithChildren) => {
             />
             {errors.token && <span className="text-xs text-red-500">{errors.token.message}</span>}
           </div>
+
+          {isFromDefault && (
+            <div className="text-amber-600">These credentials were taken from the .env file</div>
+          )}
 
           <div>
             <InputLabel optional className="mb-1">
