@@ -122,8 +122,8 @@ importers:
         specifier: ^18
         version: 18.3.0
       '@upstash/edge-flags':
-        specifier: ^0.1.1
-        version: 0.1.1(@babel/core@7.24.7)(react-dom@18.2.0(react@18.3.1))
+        specifier: workspace:*
+        version: link:../sdk
       '@upstash/redis':
         specifier: ^1.31.5
         version: 1.31.6
@@ -1337,9 +1337,6 @@ packages:
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
-
-  '@upstash/edge-flags@0.1.1':
-    resolution: {integrity: sha512-rfiWaxom+YeSZuyryaX567xWqnjjaYEdYJoUCTmB9lIWLvw55T2dWdsfNw6bGd6zKya4R2UtFpU+JBRq4TOqJA==}
 
   '@upstash/redis@1.31.6':
     resolution: {integrity: sha512-7sDQQqvVnnV+2PUVGjocITa34CULGLoWhmfSY/LtpxNYv24EsgOk9VXhmGXIyzJBcXxB614wOF6ccEN0Lr7fqQ==}
@@ -5314,20 +5311,6 @@ snapshots:
       eslint-visitor-keys: 3.4.3
 
   '@ungap/structured-clone@1.2.0': {}
-
-  '@upstash/edge-flags@0.1.1(@babel/core@7.24.7)(react-dom@18.2.0(react@18.3.1))':
-    dependencies:
-      '@upstash/redis': 1.31.6
-      next: 13.1.2(@babel/core@7.24.7)(react-dom@18.2.0(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      zod: 3.23.8
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
-      - fibers
-      - node-sass
-      - react-dom
-      - sass
 
   '@upstash/redis@1.31.6':
     dependencies:
