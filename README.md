@@ -64,28 +64,24 @@ npm install @upstash/edge-flags
 4. Create an edge function in your project
 
 ```ts
-// /api/edge-flags.ts
+// /app/api/edge-flags/route.ts
 import { createEdgeHandler } from "@upstash/edge-flags";
 
-export default createEdgeHandler({
+export const GET = createEdgeHandler({
   cacheMaxAge: 0, // cache time in seconds, 0 disables the cache
   redisUrl: process.env.UPSTASH_REDIS_REST_URL!, // omit to load from env automatically
   redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!, // omit to load from env automatically
 });
 
-/**
- * Edge flags only works in edge functions, it will break if you do not set the runtime
- */
-export const config = {
-  runtime: "experimental-edge",
-};
+export const runtime = "edge";
 ```
 
-4. Query the flag in your frontend
+5. Query the flag in your frontend
 
 ```tsx
-// /app/index.tsx
+// /app/page.tsx
 import { useFlag } from "@upstash/edge-flags";
+
 export default function Example() {
   const { isEnabled, isLoading, error } = useFlag("flag-name");
 
