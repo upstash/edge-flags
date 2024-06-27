@@ -9,9 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@upstash/edge-flags": "workspace:*",
     "@heroicons/react": "^2.0.13",
     "@tremor/react": "^1.6.0",
+    "@upstash/edge-flags": "workspace:*",
+    "@upstash/redis": "^1.31.6",
     "next": "^14.2.4",
     "react": "^18.3.1",
     "react-dom": "^18.2.0"

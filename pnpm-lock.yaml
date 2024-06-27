@@ -59,6 +59,9 @@ importers:
       '@upstash/edge-flags':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@upstash/redis':
+        specifier: ^1.31.6
+        version: 1.31.6
       next:
         specifier: ^14.2.4
         version: 14.2.4(@babel/core@7.24.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
