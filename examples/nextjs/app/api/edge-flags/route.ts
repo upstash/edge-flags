@@ -6,7 +6,7 @@ export const GET = createEdgeHandler({
   redisToken: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-export const runtime = "edge";
+// export const runtime = "edge";
 
 // NOTE: For pages router, just default export the handler itself
 /*
