@@ -1,5 +1,10 @@
 import { Redis } from "@upstash/redis";
-import { NextFetchEvent, NextMiddleware, NextRequest, NextResponse } from "next/server";
+import {
+  NextFetchEvent,
+  NextMiddleware,
+  NextRequest,
+  NextResponse,
+} from "next/server";
 
 import { Admin } from "./admin";
 import { evaluate } from "./evaluation";
@@ -48,7 +53,7 @@ export type HandlerConfig = (
 /**
  * createHandler should be default exported by the user in an edge compatible api route
  */
-export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
+export function createEdgeHandler(opts: HandlerConfig) {
   const cache = new Cache<Flag>(opts.maxAge);
   const redis =
     opts.redisUrl && opts.redisToken
@@ -65,7 +70,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
   }
   const admin = new Admin({ redis, prefix: opts.prefix });
 
-  return async (req: NextRequest, _event: NextFetchEvent) => {
+  return async (req: NextRequest) => {
     const edgeStart = Date.now();
     const url = new URL(req.url);
 
@@ -86,7 +91,9 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
       const redisStart = Date.now();
       const loaded = await admin.getFlag(
         flagName,
-        opts.environment ?? (process.env.VERCEL_ENV as Environment) ?? "development",
+        opts.environment ??
+          (process.env.VERCEL_ENV as Environment) ??
+          "development"
       );
       if (opts.debug) console.log("found flag", loaded);
       headers.set("X-Redis-Latency", (Date.now() - redisStart).toString());
@@ -103,7 +110,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
         {
           status: 404,
           headers,
-        },
+        }
       );
     }
 
@@ -113,7 +120,10 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
       evalRequest[decodeURIComponent(key)] = decodeURIComponent(value);
     });
 
-    const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(evalRequest)));
+    const hash = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(JSON.stringify(evalRequest))
+    );
     const hashSum = Array.from(new Uint8Array(hash)).reduce((sum, x) => {
       sum += x;
       return sum;
@@ -134,7 +144,7 @@ export function createEdgeHandler(opts: HandlerConfig): NextMiddleware {
       {
         status: 200,
         headers,
-      },
+      }
     );
   };
 }
