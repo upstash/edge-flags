@@ -13,8 +13,16 @@ import { FeatureFlag } from "@/components/flag"
 import { AddFlagForm } from "../components/add-flag"
 import { DatabaseSelector, EnvironmentType } from "../components/select-db"
 
-const FlagsList = ({ environment }: { environment: EnvironmentType }) => {
-  const { data: flags, isLoading } = useFetchFlags()
+const FlagsList = ({
+  environment,
+  selectedDb,
+}: {
+  environment: EnvironmentType
+  selectedDb?: string
+}) => {
+  const { data: flags, isLoading } = useFetchFlags({
+    selectedDb,
+  })
 
   if (isLoading) {
     return <Skeleton active />
@@ -71,14 +79,14 @@ function Page() {
           <div className="flex flex-col gap-8">
             <DatabaseSelector
               selectedDb={selectedDb}
-              onSelectDb={setSelectedDb}
+              setSelectedDb={setSelectedDb}
               environment={environment}
               setEnvironment={setEnvironment}
             />
             {selectedRedis && (
               <RedisProvider redis={selectedRedis}>
                 <AddFlagForm />
-                <FlagsList environment={environment} />
+                <FlagsList environment={environment} selectedDb={selectedDb} />
               </RedisProvider>
             )}
           </div>

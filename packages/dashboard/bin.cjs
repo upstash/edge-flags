@@ -5,6 +5,10 @@ const { parse } = require("url")
 const next = require("next")
 const opener = require("opener")
 
+// Read environment variables from where binary is run,
+// not from the next deployment directory
+require("dotenv").config()
+
 // CD into the script path
 process.chdir(__dirname)
 
@@ -30,7 +34,7 @@ Options:
   process.exit(0)
 }
 
-const port = parseInt(argv.port || process.env.PORT || "3000", 10)
+const port = parseInt(argv.port || process.env.PORT || "5434", 10)
 
 const app = next({ dev: false, hostname, port })
 const handle = app.getRequestHandler()

@@ -20,12 +20,16 @@ type Store = {
 
 export const useDatabaseStore = create(
   persist<Store>(
-    (set) => ({
+    (set, get) => ({
       databases: [],
 
       addDatabase: (database) => {
+        if (get().databases.some((db) => db.url === database.url)) {
+          throw new Error("Database with the same URL already exists")
+        }
+
         const db = {
-          id: Math.random().toString(36).substr(2, 9),
+          id: Math.random().toString(36).slice(2, 9),
           ...database,
         }
 
@@ -35,6 +39,10 @@ export const useDatabaseStore = create(
       },
 
       deleteDatabase: (id) => {
+        if (!get().databases.some((db) => db.id === id)) {
+          throw new Error("Database with the given ID does not exist")
+        }
+
         set((state) => ({
           databases: state.databases.filter((db) => db.id !== id),
         }))
