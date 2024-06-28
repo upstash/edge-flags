@@ -7,7 +7,8 @@
     "test": "turbo run test",
     "dev": "turbo run dev --parallel",
     "fmt": "pnpm rome check . --apply-suggested && pnpm rome format . --write",
-    "ci:version": "pnpm changeset version && pnpm install"
+    "ci:version": "pnpm changeset version && pnpm install",
+    "ci:build": "turbo build -F './packages/*'"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.6",
