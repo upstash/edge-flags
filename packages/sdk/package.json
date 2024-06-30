@@ -1,5 +1,8 @@
 {
   "name": "@upstash/edge-flags",
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.1.2",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
