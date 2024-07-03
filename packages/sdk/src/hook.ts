@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export type UseFlag = {
   isLoading: boolean;
@@ -24,7 +24,10 @@ export type UseFlag = {
   };
 };
 
-export function useFlag(flag: string, attributes?: Record<string, string | number | boolean>): UseFlag {
+export function useFlag(
+  flag: string,
+  attributes?: Record<string, string | number | boolean>
+): UseFlag {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEnabled, setIsEnabled] = useState<boolean | null>(null);
@@ -34,7 +37,12 @@ export function useFlag(flag: string, attributes?: Record<string, string | numbe
   const [memoryCacheHit, setMemoryCacheHit] = useState<string | null>(null);
   const [vercelCacheHit, setVercelCacheHit] = useState<string | null>(null);
 
-  const getFlag = async () => {
+  const memoizedAttributes = useMemo(
+    () => attributes,
+    [JSON.stringify(attributes)]
+  );
+
+  const getFlag = useCallback(async () => {
     setError(null);
     setMemoryCacheHit(null);
     setVercelCacheHit(null);
@@ -44,12 +52,10 @@ export function useFlag(flag: string, attributes?: Record<string, string | numbe
       setIsLoading(true);
       const params = new URLSearchParams();
 
-      attributes ??= {};
-      attributes["_flag"] = flag;
-      if (attributes) {
-        for (const [k, v] of Object.entries(attributes)) {
-          params.set(k, v.toString());
-        }
+      const attributes = { ...memoizedAttributes, _flag: flag };
+
+      for (const [k, v] of Object.entries(attributes)) {
+        params.set(k, v.toString());
       }
       const res = await fetch(`/api/edge-flags?${params.toString()}`);
       if (!res.ok) {
@@ -72,11 +78,12 @@ export function useFlag(flag: string, attributes?: Record<string, string | numbe
       setLatency(Date.now() - now);
       setIsLoading(false);
     }
-  };
+  }, [flag, memoizedAttributes]);
 
+  // Only updates when flag or attributes change
   useEffect(() => {
     getFlag();
-  }, [flag, attributes]);
+  }, [getFlag]);
 
   return {
     isLoading,
