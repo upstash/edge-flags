@@ -1,5 +1,11 @@
 # @upstash/edge-flags
 
+## 0.1.3
+
+### Patch Changes
+
+- 92ad513: add memoization to attributes and the getFlag function in the hook
+
 ## 0.1.2
 
 ### Patch Changes
