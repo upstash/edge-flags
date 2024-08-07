@@ -28,14 +28,6 @@ Edge Flags is a low latency feature flagging solution running at the edge and st
 
 <br/>
 
-## Docs
-- [Overview](docs/overview.md)
-- [Getting Started](docs/getstarted.md) 
-- [Environments](docs/environments.md)
-- [Percentage](docs/percentage.md)
-- [Rules](docs/rules.md)
-- [React Example](docs/react.md)
-
 
 ## Architecture
 
@@ -110,6 +102,16 @@ const attributes = {
 
 useFlag("flag-name", attributes);
 ```
+
+
+## Docs
+- [Overview](docs/overview.md)
+- [Getting Started](docs/getstarted.md)
+- [Environments](docs/environments.md)
+- [Percentage](docs/percentage.md)
+- [Rules](docs/rules.md)
+- [React Example](docs/react.md)
+
 
 ## Development
 
