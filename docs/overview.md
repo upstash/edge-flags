@@ -25,4 +25,4 @@ You can find the Github Repository [here](https://github.com/upstash/edge-flags)
 
 ## Architecture
 
-<Frame>![Arch](/img/edge-flags/simple.png)</Frame>
+![Architecture](/img/edge-flags/simple.png)
