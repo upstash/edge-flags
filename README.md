@@ -8,7 +8,7 @@
 </div>
 <br/>
 
-![Arch](img/flag.png)
+![Arch](flag.png)
 
 > [!NOTE]  
 > **This project is a Community Project.**

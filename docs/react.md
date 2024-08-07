@@ -1,6 +1,4 @@
----
-title: React Client
----
+# React Client
 
 The `@upstash/edge-flags` package provides a React hook, you can use to query
 flags in your React application.

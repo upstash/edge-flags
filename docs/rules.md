@@ -1,6 +1,4 @@
----
-title: Rules
----
+# Rules
 
 Rules are used to enable a flag for a subset of users. Rules are evaluated from
 top to bottom. If a rule matches, the flag will return the configured value and

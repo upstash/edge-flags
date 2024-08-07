@@ -1,6 +1,4 @@
----
-title: Get Started
----
+# Get Started
 
 This quickstart will show you how to get started with Edge Flags in a Next.js
 project.

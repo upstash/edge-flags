@@ -1,6 +1,4 @@
----
-title: Percentage
----
+# Percentage
 
 Using a percentage allows you to only apply rules to a subset of users. This is
 useful if you want to roll out a feature to a small percentage of users first

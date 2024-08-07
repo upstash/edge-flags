@@ -1,6 +1,4 @@
----
-title: Overview
----
+# Overview
 
 Edge Flags is a low latency feature flagging solution running at the edge and
 storing data in a global Redis database. It is designed to be used with

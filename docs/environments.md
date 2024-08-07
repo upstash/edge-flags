@@ -1,6 +1,4 @@
----
-title: Environments
----
+# Environments
 
 When you create a new flag, it will always be created in all 3 environments:
 `production`, `preview` and `development`. You can then toggle the flag and set
