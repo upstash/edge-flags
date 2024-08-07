@@ -29,8 +29,13 @@ Edge Flags is a low latency feature flagging solution running at the edge and st
 <br/>
 
 ## Docs
+- [Overview](docs/overview.md)
+- [Getting Started](docs/getstarted.md) 
+- [Environments](docs/environments.md)
+- [Percentage](docs/percentage.md)
+- [Rules](docs/rules.md)
+- [React Example](docs/react.md)
 
-This readme provides a quickstart guide. For more information, see our [docs](https://docs.upstash.com/redis/sdks/edge-flags/overview).
 
 ## Architecture
 
