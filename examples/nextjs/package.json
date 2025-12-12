@@ -12,7 +12,7 @@
     "@heroicons/react": "^2.0.13",
     "@tremor/react": "^1.6.0",
     "@upstash/edge-flags": "workspace:*",
-    "next": "^14.2.4",
+    "next": "14.2.35",
     "react": "^18.3.1",
     "react-dom": "^18.2.0"
   },
